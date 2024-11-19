@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>がん末期フローチャート</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="chart-container">
+    <!-- 初診 -->
+    <div class="node" id="start">初診</div>
+    <div class="arrow" id="arrow1"></div>
+
+    <!-- 退院前カンファ -->
+    <div class="node" id="conference">退院前カンファ<br>あり</div>
+    <div class="arrow" id="arrow2"></div>
+
+    <!-- 退院日、看多機 -->
+    <div class="branch">
+      <div class="node" id="discharge">退院日</div>
+      <div class="node" id="kanriki">看多機</div>
+    </div>
+
+    <!-- 他の要素 -->
+    <div class="node" id="home">自宅</div>
+    <div class="node" id="regular">定期</div>
+    <div class="note" id="note1">注①</div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>

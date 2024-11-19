@@ -1,0 +1,75 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f9f9f9;
+}
+
+.chart-container {
+  position: relative;
+  width: 800px;
+  height: 600px;
+}
+
+.node {
+  position: absolute;
+  padding: 15px;
+  background-color: #ffcccc;
+  border: 1px solid #000;
+  border-radius: 8px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.arrow {
+  position: absolute;
+  width: 100px;
+  height: 2px;
+  background-color: red;
+}
+
+.branch {
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+}
+
+/* カスタム位置調整 */
+#start {
+  top: 50px;
+  left: 350px;
+}
+
+#conference {
+  top: 150px;
+  left: 350px;
+}
+
+#discharge {
+  top: 250px;
+  left: 250px;
+}
+
+#kanriki {
+  top: 250px;
+  left: 450px;
+}
+
+#home {
+  top: 350px;
+  left: 250px;
+}
+
+#regular {
+  top: 350px;
+  left: 450px;
+}
+
+.note {
+  position: absolute;
+  font-size: 12px;
+  color: red;
+}
