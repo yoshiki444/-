@@ -1,3 +1,4 @@
+/* 全体の設定 */
 body {
   font-family: Arial, sans-serif;
   margin: 0;
@@ -5,71 +6,82 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+  height: 100vh;
   background-color: #f9f9f9;
 }
 
 .chart-container {
   position: relative;
-  width: 800px;
-  height: 600px;
+  width: 600px;
+  height: 400px;
 }
 
+/* ノードの基本スタイル */
 .node {
   position: absolute;
-  padding: 15px;
-  background-color: #ffcccc;
-  border: 1px solid #000;
-  border-radius: 8px;
+  padding: 10px 20px;
+  background-color: #ffeb3b; /* 黄色の吹き出し */
+  color: #000;
   text-align: center;
-  cursor: pointer;
+  border-radius: 10px;
+  font-size: 18px;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
 }
 
+/* メインノード（がん末期） */
+.node.main {
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 24px;
+  font-weight: bold;
+  border-radius: 20px;
+}
+
+/* サブノード（退院前カンファ） */
+.node.sub {
+  width: 200px;
+}
+
+/* 左側ノード（退院前カンファ あり） */
+#with-conference {
+  top: 200px;
+  left: 50px;
+}
+
+/* 右側ノード（退院前カンファ なし） */
+#no-conference {
+  top: 200px;
+  right: 50px;
+}
+
+/* ハイライト（初診） */
+.highlight {
+  color: red;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+/* 矢印のスタイル */
 .arrow {
   position: absolute;
-  width: 100px;
-  height: 2px;
-  background-color: red;
+  width: 0;
+  height: 0;
+  border-style: solid;
 }
 
-.branch {
-  display: flex;
-  justify-content: space-between;
-  position: relative;
+.arrow-left {
+  top: 100px;
+  left: 300px;
+  border-width: 15px 15px 0 15px;
+  border-color: #ffeb3b transparent transparent transparent;
+  transform: rotate(-45deg);
 }
 
-/* カスタム位置調整 */
-#start {
-  top: 50px;
-  left: 350px;
-}
-
-#conference {
-  top: 150px;
-  left: 350px;
-}
-
-#discharge {
-  top: 250px;
-  left: 250px;
-}
-
-#kanriki {
-  top: 250px;
-  left: 450px;
-}
-
-#home {
-  top: 350px;
-  left: 250px;
-}
-
-#regular {
-  top: 350px;
-  left: 450px;
-}
-
-.note {
-  position: absolute;
-  font-size: 12px;
-  color: red;
+.arrow-right {
+  top: 100px;
+  right: 300px;
+  border-width: 15px 15px 0 15px;
+  border-color: #ffeb3b transparent transparent transparent;
+  transform: rotate(45deg);
 }
