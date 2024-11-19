@@ -16,11 +16,11 @@ body {
   height: 400px;
 }
 
-/* ノードの基本スタイル */
+/* ノード（吹き出しのボックス） */
 .node {
   position: absolute;
   padding: 10px 20px;
-  background-color: #ffeb3b; /* 黄色の吹き出し */
+  background-color: #ffeb3b; /* 黄色 */
   color: #000;
   text-align: center;
   border-radius: 10px;
@@ -38,31 +38,31 @@ body {
   border-radius: 20px;
 }
 
-/* サブノード（退院前カンファ） */
+/* 左右の分岐ノード */
 .node.sub {
   width: 200px;
 }
 
-/* 左側ノード（退院前カンファ あり） */
+/* 左側（退院前カンファ あり） */
 #with-conference {
   top: 200px;
   left: 50px;
 }
 
-/* 右側ノード（退院前カンファ なし） */
+/* 右側（退院前カンファ なし） */
 #no-conference {
   top: 200px;
   right: 50px;
 }
 
-/* ハイライト（初診） */
+/* 初診の強調（赤文字） */
 .highlight {
   color: red;
   font-weight: bold;
   font-size: 16px;
 }
 
-/* 矢印のスタイル */
+/* 矢印のデザイン */
 .arrow {
   position: absolute;
   width: 0;
@@ -70,18 +70,20 @@ body {
   border-style: solid;
 }
 
+/* 左矢印 */
 .arrow-left {
   top: 100px;
-  left: 300px;
+  left: 200px; /* がん末期から左側に向かう位置 */
   border-width: 15px 15px 0 15px;
-  border-color: #ffeb3b transparent transparent transparent;
-  transform: rotate(-45deg);
+  border-color: black transparent transparent transparent;
+  transform: rotate(-45deg); /* 左下方向に矢印 */
 }
 
+/* 右矢印 */
 .arrow-right {
   top: 100px;
-  right: 300px;
+  right: 200px; /* がん末期から右側に向かう位置 */
   border-width: 15px 15px 0 15px;
-  border-color: #ffeb3b transparent transparent transparent;
-  transform: rotate(45deg);
+  border-color: black transparent transparent transparent;
+  transform: rotate(45deg); /* 右下方向に矢印 */
 }
