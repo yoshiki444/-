@@ -1,0 +1,27 @@
+2025-02-19 15:11:04 [INFO] 処理を開始します
+2025-02-19 15:11:04 [INFO] ====== WebDriver manager ======
+2025-02-19 15:11:06 [INFO] Get LATEST chromedriver version for google-chrome
+2025-02-19 15:11:06 [INFO] Get LATEST chromedriver version for google-chrome
+2025-02-19 15:11:06 [INFO] Driver [C:\Users\offic\.wdm\drivers\chromedriver\win64\133.0.6943.126\chromedriver-win32/chromedriver.exe] found in cache
+2025-02-19 15:11:27 [INFO] 選択された年月: 2025-02
+2025-02-19 15:11:50 [ERROR] エラーが発生しました: レセプト画面への遷移に失敗しました
+Traceback (most recent call last):
+  File "C:\Users\offic\OneDrive\デスクトップ\アプリ開発\居宅画面チェック\main.py", line 52, in main
+    raise Exception("レセプト画面への遷移に失敗しました")
+Exception: レセプト画面への遷移に失敗しました
+2025-02-19 15:24:20 [WARNING] Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000002E72B5EF380>: Failed to establish a new connection: [WinError 10061] 対象のコンピューターによって拒否されたため、接続できませんでした。')': /session/fb5794b8ffb483d04217de08fc5834bc
+2025-02-19 15:24:24 [WARNING] Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000002E72B66ED50>: Failed to establish a new connection: [WinError 10061] 対象のコンピューターによって拒否されたため、接続できませんでした。')': /session/fb5794b8ffb483d04217de08fc5834bc
+2025-02-19 15:24:29 [WARNING] Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000002E72B66E850>: Failed to establish a new connection: [WinError 10061] 対象のコンピューターによって拒否されたため、接続できませんでした。')': /session/fb5794b8ffb483d04217de08fc5834bc
+2025-02-19 15:24:38 [INFO] 処理を終了します
+2025-02-19 15:24:51 [INFO] 処理を開始します
+2025-02-19 15:24:51 [INFO] ====== WebDriver manager ======
+2025-02-19 15:24:52 [INFO] Get LATEST chromedriver version for google-chrome
+2025-02-19 15:24:53 [INFO] Get LATEST chromedriver version for google-chrome
+2025-02-19 15:24:53 [INFO] Driver [C:\Users\offic\.wdm\drivers\chromedriver\win64\133.0.6943.126\chromedriver-win32/chromedriver.exe] found in cache
+2025-02-19 15:25:03 [INFO] 選択された年月: 2025-02
+2025-02-19 15:25:51 [ERROR] エラーが発生しました: レセプト画面への遷移に失敗しました
+Traceback (most recent call last):
+  File "C:\Users\offic\OneDrive\デスクトップ\アプリ開発\居宅画面チェック\main.py", line 52, in main
+    raise Exception("レセプト画面への遷移に失敗しました")
+Exception: レセプト画面への遷移に失敗しました
+2025-02-19 15:26:42 [INFO] 処理を終了します
