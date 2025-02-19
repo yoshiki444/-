@@ -1,0 +1,1530 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- saved from url=(0072)https://s2.movacal.net/23.7/?pid=top&first_access=1739947072&patient_id= -->
+<html lang="ja" xml:lang="ja" xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>モバカルネット | 在宅医療対応電子カルテ</title>
+<script type="text/javascript" src="./モバカルネット _ 在宅医療対応電子カルテ_files/jquery-1.6.2.min.js.ダウンロード"></script>
+<script type="text/javascript" src="./モバカルネット _ 在宅医療対応電子カルテ_files/jquery.highlight-3.js.ダウンロード"></script>
+<script type="text/javascript" src="./モバカルネット _ 在宅医療対応電子カルテ_files/jquery.cookie.js.ダウンロード"></script>
+<script type="text/javascript" src="./モバカルネット _ 在宅医療対応電子カルテ_files/util.js.ダウンロード"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){
+	$("table").each(function(){
+		jQuery(this).find("tr:even").addClass("even");
+	});
+
+	initNotice();
+
+});
+</script>
+
+<script src="./モバカルネット _ 在宅医療対応電子カルテ_files/jquery-ui.min.js.ダウンロード" type="text/javascript"></script>
+<script type="text/javascript" src="./モバカルネット _ 在宅医療対応電子カルテ_files/jquery.cookie.js.ダウンロード"></script>
+<link rel="stylesheet" href="./モバカルネット _ 在宅医療対応電子カルテ_files/jquery-ui.css" type="text/css" media="all">
+<script src="./モバカルネット _ 在宅医療対応電子カルテ_files/jquery-ui.min.js.ダウンロード" type="text/javascript"></script>
+<script type="text/javascript">
+
+var res_id = 0;
+var cur_pop_id = 0;
+var cur_board = 0;
+
+	//---------------------------------------------
+	//共通
+	//---------------------------------------------
+
+	//カーソル位置の定義
+	var X,Y;
+	$(document).ready(function(){
+		$('html').mouseover(function(ev){
+			X=ev.pageX-120;
+			Y=ev.pageY-120;
+		});
+	});
+
+	//DIVによるポップアップウィンドウ
+
+	function openPopWindow( elemid,h,w,top,left ){
+
+		$('#'+elemid).draggable({ handle: ".popHead" });
+		$('#'+elemid).css("position","absolute");
+		$('#'+elemid).css("top",top);
+		$('#'+elemid).css("left",left);
+		$('#'+elemid).css("width",w + "px");
+		$('#'+elemid).css("z-index","200");
+		$('#'+elemid).show();
+
+	}
+
+	function openPopWindowZ( elemid,h,w,top,left,Z ){
+
+		$('#'+elemid).draggable({ handle: ".popHead" });
+		$('#'+elemid).css("position","absolute");
+		$('#'+elemid).css("top",top);
+		$('#'+elemid).css("left",left);
+		$('#'+elemid).css("width",w + "px");
+		$('#'+elemid).css("z-index",Z);
+		$('#'+elemid).show();
+
+	}
+
+
+	function closePopWindow(elemID,mode){
+		$('#'+elemID).hide();
+		$('#screen').hide();
+		if( mode == 0 ){
+			cur_pop_id = mode;
+		}
+	}
+	$(function(){
+		$("#filename").change(function(evt){
+					const file = evt.target.files[0];
+					
+					if(file.size>5242880){
+						alert("ファイルサイズが５MBを超えています");
+					}
+				});
+		
+		
+	});
+
+	//-----------------------------------------------
+	// ポップアップ関連
+	//-----------------------------------------------
+
+	var confirm_flag_flag;
+	//メッセージボックス
+	function openFlag(id,flag_id,color,comment,confirm) {
+		if(confirm == undefined){
+			confirm = 0;
+		}
+		confirm_flag_flag = confirm;
+
+		//初期化
+		//ウィンドウオープン
+		if( cur_pop_id > 0  && cur_pop_id != 2){
+			alert("他のウィンドウを閉じてください");
+		}else{
+			cur_pop_id = 1;
+			$("#flag_id").val(id);
+			if(flag_id){
+				$("#confflag_id").val(flag_id);
+				$("#delete_flag").show();
+				$("#flagcomment").val(comment);
+				$("input[name='flagcolor']").val([color]);
+			}else{
+				$("#delete_flag").hide();
+				$("#flagcomment").val("");
+				$("input[name='flagcolor']").val([]);
+			}
+			openPopWindow( "flagPop",300,300,Y+60,X );
+			
+		}
+	}
+	function showSearchMessage(){
+		if( cur_pop_id > 0 ){
+			alert("他のウィンドウを閉じてください");
+		}else{
+			cur_pop_id = 2;
+			$("#search_message").val("");
+			$("#search_startdate").val("");
+			$("#search_enddate").val("");
+			$("#search_message_board").val(cur_board);
+			$("#message_board_search_body").text(""); 
+			openPopWindow( "showSearchMessagePop",540,700,Y+60,X+30);
+		}
+	}
+	//メッセージボックス
+	function openMess(id,board_id) {
+		if(board_id == undefined){
+			board_id = cur_board;
+		}
+		$("#postmess_mode").val(board_id);
+		//初期化
+		//ウィンドウオープン
+		if( cur_pop_id > 0  && cur_pop_id != 2){
+			alert("他のウィンドウを閉じてください");
+		}else{
+			cur_pop_id = 1;
+			res_id = (id == undefined)? 0 : id;
+			openPopWindowZ( "messPop",600,625,75,0,250 );
+			
+			if( board_id == 0 ){
+				$("#other_clinic_open_flag").css('display','block');
+				$("#clinic_select_4conf").css('display','inline');
+			}else{
+				$("#other_clinic_open_flag").css('display','none');
+				$("#clinic_select_4conf").css('display','none');
+			}
+		}
+	}
+
+	function postFlag(){
+		var flag_id = $("#flag_id").val();
+		var flag_color = $('input:radio[name="flagcolor"]:checked').val();
+		if(!flag_color){
+			alert("色を選択してください");
+			return;
+		}
+		var comment = $("#flagcomment").val();
+		var board = cur_board;
+		var send_url = "functions/sendMessageFlag.php";
+		var key_ary = new Array("flag_id","flag_color","comment","board");
+		var data_ary = new Array(flag_id,flag_color,comment,board);
+		sendDatabyAjax(send_url,key_ary,data_ary,postFlagCB);
+		$("#flagPop").hide();
+		$("body").prepend("<div id='screen' class='screen'></div>");
+	}
+	function postFlagCB(data){
+		if(data == 1){
+			if(confirm_flag_flag == 1){
+				$('#screen').remove();
+				var send_url = "functions/getConfDetail.php";
+    var key_ary = new Array();
+    var data_ary = new Array();
+    sendDatabyAjax(send_url,key_ary,data_ary,dispConfDetailCB);
+				cur_pop_id = 0;
+				return;
+			}
+			cur_pop_id = 0;
+			$('#screen').remove();
+		}else{
+			alert("エラーが発生しました");
+			$('#screen').remove();
+		}
+	}
+	//メッセージ送信
+	function postMessage(){
+		var alert_msg = "";
+		if( $("#message_body1").val() == "" ){
+			alert_msg += 'メッセージ内容を入力してください\n';
+		}
+		if( alert_msg != "" ){
+			alert(alert_msg);
+		}else{
+			/*
+			var al_flag = ( $("#al_check").attr("checked") )? 1 : 0;
+			var send_url = "functions/postMessage2.php";
+			var key_ary = new Array("from_id","message","res_id","al_flag","mode","confuser","conf_user_name","tmpfile");
+			*/
+			var conf_userid = "";
+			var conf_user_name = "";
+			var confUserNum = $(".confTargetUser").size();
+			for( i=1;i<=confUserNum;i++ ){
+				if( $("#confTargetUser_" + i).attr("checked") ){
+					conf_userid += $("#confTargetUser_" + i).val() + ",";
+					conf_user_name += inputTrim($("#confTargetUserLabel_" + i).text()) + ",";
+				}
+			}
+			$("#res_id").val(res_id);
+			$("#conf_user_id").val(conf_userid);
+			$("#conf_user_name").val(conf_user_name);
+			//$("#postmess_mode").val(cur_board);
+			
+			if(confirm("この内容で登録します。\nよろしいですか？")){
+				$("#message_post").prop("disabled",true);
+				document.forms['messageForm'].submit();
+			}
+
+		}
+	}
+
+
+
+	//掲示板情報取得
+	function getMessageBoardWithSearchMessage(offset){
+		if( offset == 0 ){
+			$("#message_board_search_body").html("");
+		}
+		
+		$(".more_row").remove();
+		var mode = $("#odan").prop("checked")?"1":"0";
+		var mid = $("#search_message_board").val();
+		var start_date = inputTrim($("#search_startdate").val());
+		var end_date = inputTrim($("#search_enddate").val());
+		var search_message = inputTrim($("#search_message").val());
+		var send_url = "functions/getMessageBoardWithSearchMessage.php";
+		var key_ary = new Array("mid",'offset','searchmessage','search_startdate','search_enddate','mode');
+		var data_ary = new Array(mid,offset,search_message,start_date,end_date,mode);
+		sendDatabyAjax(send_url,key_ary,data_ary,getMessageBoardWithSearchMessageCB);
+	}
+
+
+	//掲示板情報取得のコールバック関数
+	function getMessageBoardWithSearchMessageCB(data){
+		
+		if( data != 0 ){
+			$("#message_board_search_body").append(data);
+			if( $("#search_message").val() != "" ){
+				doHighlight();
+			}
+		}
+		
+	}
+
+	//掲示板情報取得
+	function getMessageBoardSpecific(mid,board_det_id){
+		
+		$(".more_row").remove();
+		
+		//赤丸削除
+		$("#boad_" + mid + " span.popup_number").remove();
+		
+		var send_url = "functions/getMessageBoardSpecific.php";
+		var key_ary = new Array("mid",'board_det_id');
+		var data_ary = new Array(mid,board_det_id);
+		sendDatabyAjax(send_url,key_ary,data_ary,getMessageBoardCB);
+	}
+
+	//掲示板情報取得
+	function getMessageBoard(mid,offset){
+		
+		if( offset == 0 ){
+			$("#message_board_body").html("");
+		}
+		
+		$(".more_row").remove();
+		
+		//赤丸削除
+		$("#boad_" + mid + " span.popup_number").remove();
+		
+		var send_url = "functions/getMessageBoard.php";
+		var key_ary = new Array("mid",'offset');
+		var data_ary = new Array(mid,offset);
+		sendDatabyAjax(send_url,key_ary,data_ary,getMessageBoardCB);
+	}
+
+
+	//掲示板情報取得のコールバック関数
+	function getMessageBoardCB(data){
+		
+		if( data != 0 ){
+			$("#message_board_body").append(data);
+		}
+		
+	}
+	var cur_tab = "";
+	//
+	function changeMessageTab(tab_order,boardId,board_det_id){
+		if(board_det_id == undefined){
+			board_det_id = 0;
+		}	
+		if( cur_pop_id > 0 ){
+			alert("他のウィンドウを閉じてください");
+		}else{
+			//クッキー入力
+			$.cookie("topMessageLastMess1_202190200", tab_order,{ expires: 365,path:'/' });
+			$.cookie("topMessageLastMess2_202190200", boardId,{ expires: 365,path:'/' });
+			
+			
+			
+			$(".tablist").removeClass("cur");
+			$('#message_board_tab li:nth-child(' + tab_order + ')').addClass("cur");
+			//掲示板表示
+			if(board_det_id == 0){
+				getMessageBoard(boardId,0);
+			}else{
+				getMessageBoardSpecific(boardId,board_det_id);
+			}
+			cur_board = boardId;
+			cur_tab = tab_order;
+			
+			//対象者初期化
+			$("#confUserArea").html("");
+			
+			//対象クリニック初期化
+			$("#clinic_select_4conf").val("");
+			
+		}
+	}
+
+	function changeMessageTabWithSearchMessage(){
+		
+		if( cur_pop_id > 0 ){
+			alert("他のウィンドウを閉じてください");
+		}else{
+			
+			
+			getMessageBoardWithSearchMessage(cur_board,0);
+			
+			
+		}
+	}
+
+
+	//使用者情報取得
+	function addConfUser(){
+		$("#searchUserSelectArea").show();
+		var mode = $("#clinic_select_4conf").val();
+		var send_url = "functions/getUserList.php";
+		var key_ary = new Array('mode', 'board_id', 'sender_user_number');
+		var data_ary = new Array(mode, cur_board, sender_user_number);
+		sendDatabyAjax(send_url,key_ary,data_ary,getUserListCB);
+	}
+	//使用者サーチ取得
+	function searchConfUser(){
+		var conf_userid = "";
+			var confUserNum = $(".confTargetUser").size();
+			for( i=1;i<=confUserNum;i++ ){
+				if( $("#confTargetUser_" + i).prop("checked") ){
+					conf_userid += $("#confTargetUser_" + i).val() + ",";
+				}
+			}
+			if(conf_userid != ""){
+				conf_user = conf_userid.slice(0,-1);
+			}else{
+				conf_user = "";
+			}
+		
+		var mode = $("#clinic_select_4conf").val();
+		var word = $("#search_user_area").val();
+		var send_url = "functions/getUserListSearch.php";
+		var key_ary = new Array('mode', 'board_id', 'sender_user_number','word','conf_user');
+		var data_ary = new Array(mode, cur_board, sender_user_number,word,conf_user);
+		sendDatabyAjax(send_url,key_ary,data_ary,getUserListCB);
+	}
+
+
+	//使用者情報取得のコールバック関数
+	function getUserListCB(data){
+		
+		if( data != 0 ){
+			$("#confUserArea").html(data);
+		}
+	}
+
+
+	//メッセージ削除
+	function deleteMessage0(mid){
+		var send_url = "functions/deleteMessage.php";
+		var key_ary = new Array('mid');
+		var data_ary = new Array(mid);
+		if( confirm("メッセージを削除しますか？") ){
+			sendDatabyAjax(send_url,key_ary,data_ary,deleteMessage0CB);
+		}
+	}
+
+	function deleteMessage0CB(data){
+		if( data != 'NG' ){
+			getMessageBoard(0,0);
+		}else{
+			alert('削除できませんでした。');
+		}
+	}
+
+	//メッセージ削除
+	function deleteMessageWithSearchMessage0(mid){
+		var send_url = "functions/deleteMessage.php";
+		var key_ary = new Array('mid');
+		var data_ary = new Array(mid);
+		if( confirm("メッセージを削除しますか？") ){
+			sendDatabyAjax(send_url,key_ary,data_ary,deleteMessageWithSearchMessage0CB);
+		}
+	}
+	function deleteMessageWithSearchMessage0CB(data){
+		if( data != 'NG' ){
+			getMessageBoardWithSearchMessage(0);
+		}else{
+			alert('削除できませんでした。');
+		}
+	}
+
+
+	function deleteMessageWithSearchMessage1(bid,mid){
+		var send_url = "functions/deleteCustomMessage.php";
+		var key_ary = new Array('bid','mid');
+		var data_ary = new Array(bid,mid);
+		if( confirm("メッセージを削除しますか？") ){
+			sendDatabyAjax(send_url,key_ary,data_ary,deleteMessageWithSearchMessage1CB);
+		}
+	}
+	function deleteMessageWithSearchMessage1CB(data){
+		if( data != 'NG' ){
+			getMessageBoardWithSearchMessage(0);
+		}else{
+			alert('削除できませんでした。');
+		}
+	}
+	//メッセージ削除カスタム
+	function deleteMessage1(bid,mid){
+		var send_url = "functions/deleteCustomMessage.php";
+		var key_ary = new Array('bid','mid');
+		var data_ary = new Array(bid,mid);
+		if( confirm("メッセージを削除しますか？") ){
+			sendDatabyAjax(send_url,key_ary,data_ary,deleteMessage1CB);
+		}
+	}
+
+	function deleteMessage1CB(data){
+		if( data != 'NG' ){
+			getMessageBoard(cur_board,0);
+		}else{
+			alert('削除できませんでした。');
+		}
+	}
+
+	function changeUserByGroup(group_i){
+		var user_number = $("#confTargetUserGroup_"+group_i).val().split("_");
+		if($("#confTargetUserGroup_"+group_i).prop("checked") == true){
+			for(var i=0;i<user_number.length;i++){
+				$(".confTargetUserNumber_"+user_number[i]).prop("checked",true);
+			}
+		}else{
+			for(var i=0;i<user_number.length;i++){
+				$(".confTargetUserNumber_"+user_number[i]).prop("checked",false);
+			}
+		}
+	}
+	function changeUserBySingle(user_number,i,mode){
+		if(mode==1){
+			if($(".confI_"+i).prop("checked") == false){
+				$(".confTargetUserNumber_"+user_number).prop("checked",true);
+			}else{
+				$(".confTargetUserNumber_"+user_number).prop("checked",false);
+			}
+		}else{
+			if($(".confI_"+i).prop("checked") == true){
+				$(".confTargetUserNumber_"+user_number).prop("checked",true);
+			}else{
+				$(".confTargetUserNumber_"+user_number).prop("checked",false);
+			}
+		}
+	}
+$("#messageForm").keydown(function(event){
+    if(event.keyCode == 13) {
+      if($("#messageForm").val().length==0) {
+          event.preventDefault();
+          return false;
+      }
+    }
+ });
+
+ 	let sender_user_number = "";
+ 	function setSenderUserNumber( user_number ) {
+		sender_user_number = user_number;
+		$( ".confTargetUser" ).each( function() {
+			$(this).prop( "checked", false );
+		});
+		if ( user_number != "202190200" ) {
+		$( ".confTargetUserNumber_" + user_number ).prop( "checked", true );
+		}
+	}
+</script>
+
+<style>
+	input.flagcolor{
+		display:none;
+	}
+	
+	input.flagcolor:checked + img{
+		background-color:#ffc8fb;
+	}
+	
+	.flag_link{
+		margin-left:10px;
+	}
+	
+</style>
+<link rel="stylesheet" href="./モバカルネット _ 在宅医療対応電子カルテ_files/datepicker.css" type="text/css" media="all">
+<script src="./モバカルネット _ 在宅医療対応電子カルテ_files/jquery-ui.min.js.ダウンロード" type="text/javascript"></script>
+<script src="./モバカルネット _ 在宅医療対応電子カルテ_files/jquery.autocomplete.js.ダウンロード" type="text/javascript"></script>
+<link rel="stylesheet" href="./モバカルネット _ 在宅医療対応電子カルテ_files/jquery.autocomplete.css" type="text/css" media="all">
+<script src="./モバカルネット _ 在宅医療対応電子カルテ_files/ui.datepicker-ja.js.ダウンロード" type="text/javascript"></script>
+<script language="javascript" type="text/javascript" src="./モバカルネット _ 在宅医療対応電子カルテ_files/jquery.highlight-3.js.ダウンロード"></script>
+<script src="./モバカルネット _ 在宅医療対応電子カルテ_files/movacalnotice.js.ダウンロード" type="text/javascript"></script>
+
+<script>
+	
+	$(function(){
+		$("#doctordiv").scroll(function () {
+			if($("#doctordiv").scrollTop() +$("#doctordiv").height() +10 >$("#otherDoctor").height()){
+				dispOtherDoctor();
+			}
+		});
+	});
+	var bid      = 0;
+	let mouseElm = null;
+	let other_doctor_cur = 0;
+	let memoResizeCookie = false;
+
+
+	//過去データ取得（単一）
+	function postMemo(kid){
+		
+		var send_url = "functions/postPersonalMemo.php";
+		var key_ary = new Array("memo");
+		var memo = $("#personal_memo").val();
+		memo = inputTrim(memo);
+		var data_ary = new Array(memo);
+		sendDatabyAjax(send_url,key_ary,data_ary,postMemoCB);
+	}
+
+	//過去データ取得時のコールバック関数
+	function postMemoCB(data){
+		
+		if( data != 1 ){
+			alert("パーソナルメモを保存出来ませんでした");
+		}
+
+	}
+
+
+	//未読取得
+	function getUnreadMessage(){
+		var send_url = "functions/getUnreadMessage.php";
+		var key_ary = new Array("user_number");
+		var data_ary = new Array('202190200');
+		sendDatabyAjax(send_url,key_ary,data_ary,getUnreadMessageCB);
+	}
+
+	//未読取得コールバック関数
+	function getUnreadMessageCB(data){
+		var unreadnum_ary = JSON.parse(data);
+		for( var i=0;i<unreadnum_ary.length;i++ ){
+			var board_id  = unreadnum_ary[i][0];
+			var board_num = unreadnum_ary[i][1];
+			if( board_num > 0 ){
+				var c = '<span class="popup_number">' + board_num + '</span>';
+				$("#boad_" + board_id).append(c);
+			}
+		}
+	}
+
+	var jmp_message_board = '0';
+	
+	//-------------------------
+	//イベントドリブン
+	//-------------------------
+	
+	$(function(){
+		var cl_flag = 0;
+
+		$('input.datepicker').datepicker({
+			clickInput: true,
+		});
+
+		//キー入力
+		//----------------
+		$("html").keyup( function( e ) {
+			if( e.which === 13 && ( $(':focus').attr("id") == "personal_memo") ){
+				postMemo();
+			}
+		});
+		
+		var messinfo1 = $.cookie('topMessageLastMess1_202190200');
+		var messinfo2 = $.cookie('topMessageLastMess2_202190200');
+		if(jmp_message_board != '0' || '0' != '0' ){
+			changeMessageTab(1,'0','0');
+		}else if( messinfo1 == undefined || messinfo2 == undefined || cl_flag == 1){
+			changeMessageTab(1,bid);
+			
+		}else{
+			changeMessageTab(messinfo1,messinfo2);
+		}
+		
+		//スクリーン
+		$("body").prepend("<div id='screen' class='screen' style='display:none'></div>");
+
+		//未読情報取得
+		getUnreadMessage();
+
+		getTaskNum();
+		getConfNum();
+		autocompPatient('1');
+
+	});
+
+	function patientAdd(elem_num){
+	$(".patient_add").hide();
+	new_num = parseInt(elem_num)+1;
+	$("#patient_add_"+elem_num).after("<br>　　　　　　<input type=\"text\" name=\"patient_name_"+new_num+"\" id=\"patient_name_"+new_num+"\"><input type=\"hidden\" name=\"patient_num_"+new_num+"\" id=\"patient_num_"+new_num+"\"><input type=\"button\" value=\"追加\" id=\"patient_add_"+new_num+"\" class=\"patient_add\" onclick=\"patientAdd('"+new_num+"')\">");
+		autocompPatient(new_num);
+	}
+	function autocompPatient(elem_num){
+		$('#patient_name_'+elem_num).autocomplete('./functions/autocomplete_patient.php',{
+			max: 100,
+			autoFocus:true,
+			width: 200,
+			minChars: 0,
+			selectOnly : true,
+			cacheLength :1,
+			matchCase : 1,
+			matchSubset : 0,
+			formatItem: formatItem,
+			formatResult: formatResult
+	    		}
+		);
+		$('#patient_name_'+elem_num).result(function(event, data, formatted) {
+			$('#patient_num_'+elem_num).val(data[1]);
+	});
+		$('#patient_name_'+elem_num).keydown(function(event) {
+    		if(event.keyCode == 13) {
+          		event.preventDefault();
+          		return false;
+			}
+      });
+	}
+	//補完用
+	function formatItem(row) {
+		return row[0];
+	}
+	function formatResult(row) {
+		return row[0];
+	}
+
+	function doHighlight() {
+		var word = $("#search_message").val();
+		$("#message_board_search_body").highlight(word);
+	}
+
+	function clearSearch(){
+		$("#search_message").val("");
+		$("#search_startdate").val("");
+		$("#search_enddate").val("");
+	}
+
+
+	function enterKey(c){
+		if( c == 13){
+			changeMessageTabWithSearchMessage();
+		}
+	}
+
+	//パーソナルメモの拡大・縮小
+	function personalMemoZoom(elm) {
+		if (!Object.is(elm, mouseElm)) {
+			//最初にクリックした要素とポインターがある位置が違う場合
+			return;
+		}
+
+		//パーソナルの再設定（再描画用）
+		$('#personal_memo').html($('#personal_memo').val());
+
+		//アニメーション時間
+		const transitionTime = 256;
+
+		//HTML要素
+		const lightBox = $("#personal_memo_lightbox");
+		const container = $("#personal_memo_container");
+
+		if (!lightBox.hasClass("is-shown")) {
+			//拡大状態ではない場合
+
+			personalMemoZoomIn(transitionTime, lightBox, container);
+
+			return;
+		}
+
+		personalMemoZoomOut(transitionTime, lightBox, container);
+	}
+
+	//パーソナルメモの拡大
+	function personalMemoZoomIn(transitionTime, lightBox, container) {
+		//サイズ定数
+		const memoWidth = 600;
+		const memoHeight = 400;
+
+		lightBox.fadeIn(transitionTime);
+		lightBox.addClass("is-shown");
+
+		//パーソナルメモの横幅・縦幅をセット
+		container.css("width", container.width() + "px");
+		container.css("height", container.height() + 15 + "px");
+
+		const containerRect = container.get(0).getBoundingClientRect();
+
+		let personalMemo = container.html();
+
+		container.html("");
+
+		lightBox.html(personalMemo);
+
+		const memoBox = lightBox.find(".md2");
+
+		//一旦オリジナルの位置にセット
+		memoBox.css("top", containerRect.y + "px");
+		memoBox.css("left", containerRect.x + "px");
+
+		//画面の真ん中に表示
+		memoBox.animate({
+			top: ((window.innerHeight / 2) - (memoHeight / 2)) + "px",
+			left: ((window.innerWidth / 2) - (memoWidth / 2)) + "px",
+		}, transitionTime);
+
+		const memo = memoBox.find("textarea");
+
+		memo.animate({
+			width: memoWidth + "px",
+			height: memoHeight + "px",
+		}, transitionTime);
+
+		memoBox.find(".zoom_in").find(".zoom_link").text("縮小");
+		memoBox.find(".zoom_in").addClass("zoom_out");
+		memoBox.find(".zoom_in").removeClass("zoom_in");
+
+		if (!0) {
+			$("#personal_memo").focus();
+		}
+	}
+
+	//パーソナルメモの縮小
+	function personalMemoZoomOut(transitionTime, lightBox, container) {
+		const memoBox = lightBox.find(".md2");
+		const memo = memoBox.find("textarea");
+
+		memoBox.find(".zoom_out").find(".zoom_link").text("拡大");
+		memoBox.find(".zoom_out").addClass("zoom_in");
+		memoBox.find(".zoom_out").removeClass("zoom_out");
+		
+		container.removeAttr("style");
+		memoBox.removeAttr("style");
+		memo.removeAttr("style");
+
+		let personalMemo = lightBox.html();
+
+		container.html(personalMemo);
+
+		lightBox.html("");
+
+		lightBox.fadeOut(transitionTime);
+		lightBox.removeClass("is-shown");
+
+		if (!0) {
+			$("#personal_memo").focus();
+		}
+
+		let memoSize = $.cookie('personal_memo_height');
+		
+		if (memoSize !== undefined) {
+			$('#personal_memo').css('height', (parseInt(memoSize) + 10) + 'px');
+		}
+	}
+
+	//パーソナルメモのコピー
+	function copyPersonalMemo() {
+		$('#personal_memo').select();
+		
+		document.execCommand('copy');
+	}
+
+	$(document).ready(function() {
+		$(window).mousedown(function(evt) {
+			mouseElm = evt.target;
+		});
+
+		$(window).mouseup(function(evt) {
+			mouseElm = null;
+		});
+
+		$('#personal_memo').live('mousedown', function(evt) {
+			memoResizeCookie = true;
+		}).live('mouseup', function(evt) {
+			$.cookie('personal_memo_height', $(this).height(), {
+				expires: 365,
+				path: '/',
+			});
+
+			memoResizeCookie = false;
+		});
+
+		let memoSize = $.cookie('personal_memo_height');
+		
+		if (memoSize !== undefined) {
+			$('#personal_memo').css('height', (parseInt(memoSize) + 10) + 'px');
+		}
+	});
+	function dispOtherDoctor(){
+		var send_url = "functions/getOtherDoctorKarte.php";
+		var key_ary = new Array("offset");
+		var data_ary = new Array(String(other_doctor_cur));
+		sendDatabyAjax(send_url,key_ary,data_ary,dispOtherDoctorcb);
+	}
+	function dispOtherDoctorcb(data){
+		other_doctor_cur+=10;
+		$(".disp_more").hide();
+		$("#otherDoctor").append(data);
+	
+	}
+</script>
+
+<style>
+
+ul.oshirase {
+	list-style:none;
+}
+div.dtable {
+	paddiong:5px;background-color:#f8f8f8;
+	display:table;
+	width:100%;
+}
+div.dtable_r {
+	display:table-row;
+}
+div.dtable_c {
+	padding-left:30px;
+	padding:3px 0 3px 20px;
+	display:table-cell;
+}
+ul.oshirase li{
+	margin-bottom:0.4em;
+}
+
+table.schedule tr td {
+	border-bottom:1px solid #CCC;
+}
+
+table.schedule tr.even td{
+	border-bottom:1px dashed #CCC;
+}
+
+table.schedule tr td.td_etc{
+	width:11%;
+	text-align:center;
+}
+
+table.schedule tr.tr_etc_end td{
+	border-bottom:none;
+}
+
+
+
+table.schedule tr td.td_even{
+	width:11%;
+	text-align:center;
+	border-bottom:none;
+	border-right:1px solid #CCC;
+}
+
+table.schedule tr td.td_odd{
+	width:11%;
+	text-align:center;
+	border-right:1px solid #CCC;
+}
+
+textarea#personal_memo{
+	line-height:140%;
+	padding:5px;
+	height: 100px;
+	border: none;
+	box-sizing: border-box;
+	resize: none;
+}
+
+.highlight {
+	background-color: yellow;
+}
+
+#personal_memo_lightbox {
+	background-color: rgba(0, 0, 0, 0.3);
+	width: 100vw;
+	height: 100vh;
+	position: fixed;
+	top: 0;
+	left: 0;
+	display: none;
+}
+
+#personal_memo_lightbox .md2 {
+	width: auto;
+	position: absolute;
+}
+
+</style>
+
+<link rel="stylesheet" href="./モバカルネット _ 在宅医療対応電子カルテ_files/common.css" type="text/css">
+<link rel="stylesheet" type="text/css" href="./モバカルネット _ 在宅医療対応電子カルテ_files/jquery.pageslide.css">
+
+<style>
+<!--__%CSS%__-->
+#modal2 { display: none; }
+#modal2 a { background: #CCC; color: #333; font-weight: bold; padding: 5px 10px; border: none; }
+#modal2 a:hover { background: #aaa; } 
+
+</style>
+
+</head>
+<body><div id="screen" class="screen" style="display:none"></div>
+<div id="wrapper">
+<div id="container">
+
+<div id="header">
+<div id="logo">
+<a href="https://s2.movacal.net/23.7/?pid=top" target="_top"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/karte_r2_c2.png" width="130" height="26" alt="モバカルネット"></a>
+</div>
+
+<div id="logout">
+<a href="javascript:dispSchedule4RightMenu()"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/slide.png" width="26" height="26" alt="メニュー"></a>
+</div>
+
+<div style="float:right;">
+<a href="https://movacal-net.wikipy.jp/" target="_blank"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/help.png" style="width:18px;margin-top:12px;"></a>
+</div>
+
+<div id="topSearchBoxArea" style="float:right;line-height:44px;margin-right:15px;">
+<form action="https://s2.movacal.net/23.7/" method="get" target="_top">
+<img src="./モバカルネット _ 在宅医療対応電子カルテ_files/search.png" style="vertical-align:middle">
+<input type="text" name="patient_name" id="patient_search_top" onfocus="dispLastAccessPatientArea()" style="width:100px;border:1px solid #CCC;">
+<input type="submit" value="検索">
+<input type="hidden" name="search_from" value="top_search_box">
+<input type="hidden" name="pid" value="patient_index2" id="patient_search_top_val">
+</form>
+</div>
+<div id="userinfo">山口容生</div>
+<div id="confinfo" style="position:relative;cursor:pointer" onclick="javascript:dispConfDetail();"></div>
+<div id="taskinfo" style="position:relative;cursor:pointer" onclick="javascript:dispTaskDetail();"></div>
+<div id="mlinkinfo" style="position:relative;cursor:pointer" onclick="javascript:getMLinkScreenContent();"></div>
+<div id="clinicinfo">さつきホームクリニック</div>
+
+</div>
+<div style="clear:both"></div>
+
+<div id="top_global_menu">
+
+<ul id="tNavi">
+<li class="no1 cur" onclick="javascript:linkAlert(&#39;./?pid=top&#39;)"><a href="javascript:void(0)">ホーム</a></li>
+<li class="no2 " onclick="javascript:linkAlert(&#39;./?pid=patient&#39;)"><a href="javascript:void(0)">患者情報</a></li>
+<li class="no3 " onclick="javascript:linkAlert(&#39;./?pid=calendar&#39;)"><a href="javascript:void(0)">在宅予定</a></li>
+<li class="no7 " onclick="javascript:linkAlert(&#39;./?pid=outpatient&#39;)"><a href="javascript:void(0)">外来</a></li>
+<li class="no4 " onclick="javascript:linkAlert(&#39;./?pid=exam&#39;)"><a href="javascript:void(0)">検査</a></li>
+<li class="no9 " onclick="javascript:linkAlert(&#39;./?pid=record&#39;)"><a href="javascript:void(0)">記録・文書</a></li>
+<li class="no5 " onclick="javascript:linkAlert(&#39;./?pid=receipt&#39;)"><a href="javascript:void(0)">レセプト</a></li>
+<li class="no8 " onclick="javascript:linkAlert(&#39;./?pid=info&#39;)"><a href="javascript:void(0)">情報・集計</a></li>
+<li class="no11 " onclick="javascript:linkAlert(&#39;./?pid=shuunou&#39;)"><a href="javascript:void(0)">収納管理</a></li>
+<li class="no10 " onclick="javascript:linkAlert(&#39;./?pid=offline&#39;)"><a href="javascript:void(0)">オフライン</a></li>
+<!-- <li class="no12 " onclick="javascript:openVideoChat()"><a href="javascript:void(0)">ビデオチャット</a></li> -->
+<li class="no6 " onclick="javascript:linkAlert(&#39;./?pid=setting&#39;)"><a href="javascript:void(0)">設定</a></li>
+</ul>
+
+
+</div>
+
+<div id="patient_info_top_area">
+<!--__%PATIENT_DATA%__-->
+<!--__%SNAV%__-->
+<!--__%SUB_MENU%__-->
+</div>
+
+<div id="content">
+
+
+
+<div id="mapPop" class="popWindow" title="訪問地図" style="display:none;">
+	<div class="popHead">
+		<div class="popHeadTitle">訪問地図</div>
+		<div class="popHeadButton"><a href="javascript:closePopWindow(&#39;mapPop&#39;,0)"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/cross.png"></a></div>
+		<div clear="both"></div>
+	</div>
+<div class="popBody" id="map_canvas" style="height:400px;">
+</div>
+</div>
+
+<!-- メッセージ -->
+
+<div id="messPop" class="popWindow" title="メッセージを書く" style="display:none;">
+	<div class="popHead">
+		<div class="popHeadTitle">メッセージを書く</div>
+		<div class="popHeadButton"><a href="javascript:$(&#39;#searchUserSelectArea&#39;).hide();closePopWindow(&#39;messPop&#39;,0)"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/cross.png"></a></div>
+		<div clear="both"></div>
+	</div>
+<div class="popBody">
+<div style="padding:10px">
+<p>メッセージ内容を入力し、送信ボタンを押下してください。</p>
+<form action="https://s2.movacal.net/23.7/" id="messageForm" name="messageForm" method="post" enctype="multipart/form-data">
+<p style="padding-top:20px;"><textarea style="height:200px;" name="message" id="message_body1"></textarea></p>
+
+<table><tbody><tr class="even"><td style="vertical-align:top;background-color:#FFF;width:60%">
+<div style="margin-bottom:7px;"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/attach.png" class="icon">ファイル 
+<input type="file" name="filename" id="filename">
+</div>
+<div style="margin-bottom:3px;" id="confUserSelectArea"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/accept.png" class="icon">確認依頼 
+<select id="clinic_select_4conf">
+<option value="" style="font-size:10px">クリニック内</option>
+<option value="20782" style="font-size:10px">さつきホームクリニック 鹿沼</option>
+<option value="21098" style="font-size:10px">さつきホームクリニック益子</option>
+
+</select>
+<input type="button" value="ユーザ選択" onclick="javascript:addConfUser()">
+</div>
+<div style="margin-bottom:3px;display:none" id="searchUserSelectArea">ユーザー検索<input type="text" id="search_user_area">
+<input type="button" value="検索" onclick="javascript:searchConfUser()">
+</div>
+<div id="confUserArea" style="max-height:200px;overflow-y:scroll"></div>
+<div id="confPatientArea" style="max-height:200px;overflow-y:auto"> 
+<img src="./モバカルネット _ 在宅医療対応電子カルテ_files/accept.png" class="icon">患者選択
+<input type="text" name="patient_name_1" value="" id="patient_name_1" autocomplete="off" class="ac_input"><input type="hidden" name="patient_num_1" id="patient_num_1"> <input type="button" value="追加" id="patient_add_1" onclick="patientAdd(&#39;1&#39;) " class="patient_add">
+</div>
+</td>
+<td style="vertical-align:top;background-color:#FFF">
+<p style="margin:0" id="other_clinic_open_flag"><label><input type="checkbox" name="al_flag" id="al_check" value="1">提携医療機関へ公開</label></p>
+
+</td>
+</tr>
+</tbody></table>
+<input type="hidden" name="from_id" value="202190200">
+<input type="hidden" id="res_id" name="res_id" value="">
+<input type="hidden" id="postmess_mode" name="mode" value="">
+<input type="hidden" id="conf_user_id" name="confuser" value="">
+<input type="hidden" id="conf_user_name" name="conf_user_name" value="">
+<input type="hidden" name="pid" value="top_postMessage2">
+</form>
+<div style="text-align:center"><input id="message_post" type="button" value="送　信" onclick="javascript:postMessage();"></div>
+</div>
+</div>
+</div>
+
+<!-- フラグ -->
+
+<div id="flagPop" class="popWindow" title="フラグ" style="display:none;">
+	<div class="popHead">
+		<div class="popHeadTitle">フラグ</div>
+		<div class="popHeadButton"><a href="javascript:closePopWindow(&#39;flagPop&#39;,0)"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/cross.png"></a></div>
+		<div clear="both"></div>
+	</div>
+<div class="popBody">
+<table>
+<tbody><tr class="even">
+<td>フラグ</td><td><label><input type="radio" class="flagcolor" name="flagcolor" value="1"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/flag_blue.png" style="padding:3px;"></label><label><input type="radio" class="flagcolor" name="flagcolor" value="2"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/flag_green.png" style="padding:3px;"></label><label><input type="radio" class="flagcolor" name="flagcolor" value="3"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/flag_orange.png" style="padding:3px;"></label><label><input type="radio" class="flagcolor" name="flagcolor" value="4"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/flag_pink.png" style="padding:3px;"></label><label><input type="radio" class="flagcolor" name="flagcolor" value="5"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/flag_purple.png" style="padding:3px;"></label><label><input type="radio" class="flagcolor" name="flagcolor" value="6"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/flag_red.png" style="padding:3px;"></label><label><input type="radio" class="flagcolor" name="flagcolor" value="7"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/flag_yellow.png" style="padding:3px;"></label></td>
+</tr>
+<tr>
+<td>コメント</td><td><input type="text" name="flagcomment" id="flagcomment" value="" maxlength="64" style="width:200px;"></td>
+</tr>
+<tr class="even">
+</tr>
+</tbody></table>
+<input type="hidden" id="flag_id" name="flag_id" value="">
+<input type="hidden" id="confflag_id" name="confflag_id" value="">
+<div style="text-align:center"><input type="button" value="送　信" onclick="javascript:postFlag();"> <input id="delete_flag" type="button" value="削　除" onclick="javascript:deleteFlag();"></div>
+</div>
+</div>
+
+<!-- サーチメニュー -->
+<div id="showSearchMessagePop" class="popWindow" title="検索" style="display:none;">
+	<div class="popHead">
+		<div class="popHeadTitle">検索</div>
+		<div class="popHeadButton"><a href="javascript:closePopWindow(&#39;showSearchMessagePop&#39;,0)"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/cross.png"></a></div>
+		<div clear="both"></div>
+	</div>
+<div class="popBody">
+<div class="dtable">
+<div class="dtable_r"><div class="dtable_c"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/zoom.png" class="icon">検索文字列</div>
+<div class="dtable_c">
+<input type="text" id="search_message" style="height:13px;margin-top:3px;width:180px" maxlength="10" onkeypress="if(event.keyCode === 13){ getMessageBoardWithSearchMessage(0) }">
+</div>
+</div>
+<div class="dtable_r">
+<div class="dtable_c">
+<img src="./モバカルネット _ 在宅医療対応電子カルテ_files/calendar.png" class="icon">検索期間
+</div>
+<div class="dtable_c">
+<input type="text" id="search_startdate" style="height:13px;margin-top:3px;width:75px" class="datepicker hasDatepicker" maxlength="12"> ～ <input type="text" id="search_enddate" style="height:13px;margin-top:3px;width:75px" class="datepicker hasDatepicker" maxlength="12">
+</div>
+</div>
+<div class="dtable_r">
+<div class="dtable_c">
+<img src="./モバカルネット _ 在宅医療対応電子カルテ_files/application_view_list.png" class="icon">検索対象
+</div>
+<div class="dtable_c">
+<select id="search_message_board"><option value="0">連絡事項</option><option value="1">診療時の情報共有事項</option><option value="8">酸素</option><option value="9">PCA</option><option value="2">訪問看護について</option><option value="10">血糖測定器</option><option value="11">点滴台</option><option value="13">吸引機</option><option value="15">カフティポンプ　</option><option value="3">施設置き薬</option><option value="4">薬局の連休情報</option><option value="17">吸入器</option><option value="5">看護部情報共有</option><option value="12">リハ中止基準</option><option value="6">コロナ関連</option><option value="14">看護師特定行為</option><option value="16">MCSについて</option></select>
+<label><input type="checkbox" id="odan">全検索</label><input style="margin-left:40px;" type="button" value="検　索" onclick="javascript:getMessageBoardWithSearchMessage(0);">
+</div>
+</div>
+</div>
+<div id="message_board_search_body" style="border-top:#e8e8e8 solid 1px;overflow:scroll;height:350px"></div>
+</div>
+</div>
+ 
+<!--//コンテンツ開始-->
+
+<div id="tab_title">
+<div id="tab_title_left" class="home">ホーム</div>
+</div>
+
+<div id="second_navi">
+<ul class="tab clear">
+<li class="none left"><a href="https://s2.movacal.net/23.7/?pid=top">ホーム</a></li>
+<li class=""><a href="https://s2.movacal.net/23.7/?pid=top_file">ファイル共有</a></li>
+<li class=""><a href="https://s2.movacal.net/23.7/?pid=top_task">タスク一覧</a></li>
+				<li class="">
+					<a href="https://s2.movacal.net/23.7/?pid=top_substitute">
+						代行入力確認
+					</a>
+				</li>
+<li class=" right"><a href="https://s2.movacal.net/23.7/?pid=top_workflow">ワークフロー</a></li>
+</ul>
+</div>
+
+<div class="cont_wrap">
+
+<div id="left_area" class="box_md2_frame" style="width:200px">
+	<div class="md2">
+	<div class="md2_title"><h3 class="calendar">カレンダー</h3></div>
+	<div class="md2_body">
+<table class="calendar">
+<caption><a href="https://s2.movacal.net/23.7/?pid=top&amp;y=2024&amp;m=02&amp;did=202190200"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/resultset_previous2.png" class="changeYearIcon"></a>
+<a href="https://s2.movacal.net/23.7/?pid=top&amp;y=2025&amp;m=01&amp;did=202190200" style="margin-right:5px;"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/resultset_previous.png" style="vertical-align:top;"></a>
+<span>2025年02月</span>
+<a href="https://s2.movacal.net/23.7/?pid=top&amp;y=2025&amp;m=03&amp;did=202190200" style="margin-left:5px;"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/resultset_next.png" style="vertical-align:top;"></a>
+<a href="https://s2.movacal.net/23.7/?pid=top&amp;y=2026&amp;m=02&amp;did=202190200"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/resultset_next2.png" class="changeYearIcon"></a></caption>
+<tbody><tr class="even">
+<th class="red">日</th>
+<th>月</th>
+<th>火</th>
+<th>水</th>
+<th>木</th>
+<th>金</th>
+<th class="blue">土</th>
+</tr><tr>
+<td class="sun  prev " id="calendarDateCell_2025-01-26" style="cursor:pointer" onclick="jumpDateTop(&#39;2025-01-26&#39;)">26</td>
+<td class=" prev " id="calendarDateCell_2025-01-27" style="cursor:pointer" onclick="jumpDateTop(&#39;2025-01-27&#39;)">27</td>
+<td class=" prev " id="calendarDateCell_2025-01-28" style="cursor:pointer" onclick="jumpDateTop(&#39;2025-01-28&#39;)">28</td>
+<td class=" prev " id="calendarDateCell_2025-01-29" style="cursor:pointer" onclick="jumpDateTop(&#39;2025-01-29&#39;)">29</td>
+<td class=" prev " id="calendarDateCell_2025-01-30" style="cursor:pointer" onclick="jumpDateTop(&#39;2025-01-30&#39;)">30</td>
+<td class=" prev " id="calendarDateCell_2025-01-31" style="cursor:pointer" onclick="jumpDateTop(&#39;2025-01-31&#39;)">31</td>
+<td class="sat " id="calendarDateCell_2025-02-01" style="cursor:pointer" onclick="jumpDateTop(&#39;2025-02-01&#39;)">1</td>
+  </tr>
+  <tr class="even">
+<td class="sun " id="calendarDateCell_2025-02-02" style="cursor:pointer" onclick="jumpDateTop(&#39;2025-02-02&#39;)">2</td>
+<td class="" id="calendarDateCell_2025-02-03" style="cursor:pointer" onclick="jumpDateTop(&#39;2025-02-03&#39;)">3</td>
+<td class="" id="calendarDateCell_2025-02-04" style="cursor:pointer" onclick="jumpDateTop(&#39;2025-02-04&#39;)">4</td>
+<td class="" id="calendarDateCell_2025-02-05" style="cursor:pointer" onclick="jumpDateTop(&#39;2025-02-05&#39;)">5</td>
+<td class="" id="calendarDateCell_2025-02-06" style="cursor:pointer" onclick="jumpDateTop(&#39;2025-02-06&#39;)">6</td>
+<td class="" id="calendarDateCell_2025-02-07" style="cursor:pointer" onclick="jumpDateTop(&#39;2025-02-07&#39;)">7</td>
+<td class="sat " id="calendarDateCell_2025-02-08" style="cursor:pointer" onclick="jumpDateTop(&#39;2025-02-08&#39;)">8</td>
+  </tr>
+  <tr>
+<td class="sun " id="calendarDateCell_2025-02-09" style="cursor:pointer" onclick="jumpDateTop(&#39;2025-02-09&#39;)">9</td>
+<td class="" id="calendarDateCell_2025-02-10" style="cursor:pointer" onclick="jumpDateTop(&#39;2025-02-10&#39;)">10</td>
+<td class="holiday" id="calendarDateCell_2025-02-11" style="cursor:pointer" onclick="jumpDateTop(&#39;2025-02-11&#39;)">11</td>
+<td class="" id="calendarDateCell_2025-02-12" style="cursor:pointer" onclick="jumpDateTop(&#39;2025-02-12&#39;)">12</td>
+<td class="" id="calendarDateCell_2025-02-13" style="cursor:pointer" onclick="jumpDateTop(&#39;2025-02-13&#39;)">13</td>
+<td class="" id="calendarDateCell_2025-02-14" style="cursor:pointer" onclick="jumpDateTop(&#39;2025-02-14&#39;)">14</td>
+<td class="sat " id="calendarDateCell_2025-02-15" style="cursor:pointer" onclick="jumpDateTop(&#39;2025-02-15&#39;)">15</td>
+  </tr>
+  <tr class="even">
+<td class="sun " id="calendarDateCell_2025-02-16" style="cursor:pointer" onclick="jumpDateTop(&#39;2025-02-16&#39;)">16</td>
+<td class="" id="calendarDateCell_2025-02-17" style="cursor:pointer" onclick="jumpDateTop(&#39;2025-02-17&#39;)">17</td>
+<td class="" id="calendarDateCell_2025-02-18" style="cursor:pointer" onclick="jumpDateTop(&#39;2025-02-18&#39;)">18</td>
+<td class="cur_date" id="calendarDateCell_2025-02-19" style="cursor:pointer" onclick="jumpDateTop(&#39;2025-02-19&#39;)">19</td>
+<td class="" id="calendarDateCell_2025-02-20" style="cursor:pointer" onclick="jumpDateTop(&#39;2025-02-20&#39;)">20</td>
+<td class="" id="calendarDateCell_2025-02-21" style="cursor:pointer" onclick="jumpDateTop(&#39;2025-02-21&#39;)">21</td>
+<td class="sat " id="calendarDateCell_2025-02-22" style="cursor:pointer" onclick="jumpDateTop(&#39;2025-02-22&#39;)">22</td>
+  </tr>
+  <tr>
+<td class="sun holiday" id="calendarDateCell_2025-02-23" style="cursor:pointer" onclick="jumpDateTop(&#39;2025-02-23&#39;)">23</td>
+<td class="holiday" id="calendarDateCell_2025-02-24" style="cursor:pointer" onclick="jumpDateTop(&#39;2025-02-24&#39;)">24</td>
+<td class="" id="calendarDateCell_2025-02-25" style="cursor:pointer" onclick="jumpDateTop(&#39;2025-02-25&#39;)">25</td>
+<td class="" id="calendarDateCell_2025-02-26" style="cursor:pointer" onclick="jumpDateTop(&#39;2025-02-26&#39;)">26</td>
+<td class="" id="calendarDateCell_2025-02-27" style="cursor:pointer" onclick="jumpDateTop(&#39;2025-02-27&#39;)">27</td>
+<td class="" id="calendarDateCell_2025-02-28" style="cursor:pointer" onclick="jumpDateTop(&#39;2025-02-28&#39;)">28</td>
+<td class="sat  next " id="calendarDateCell_2025-03-01" style="cursor:pointer" onclick="jumpDateTop(&#39;2025-03-01&#39;)">1</td>
+  </tr>
+</tbody></table>
+
+	</div>
+	</div>
+
+<div class="banner_content"><a href="https://sp.movacal.net/movacal/bkupop/index.html" target="_blank"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/backup_opt.jpg" style="width:200px;"></a></div>
+
+<!--
+<div class="banner_content">
+<a href="https://movacal.net/nurse/" target="_blank"><img src="./imgs/nurse.png" style="width:200px;"><a>
+</div>
+-->
+
+<div id="personal_memo_container">
+	<div class="md2" onclick="event.stopPropagation();">
+		<div class="md2_title" style="display: flex;">
+			<h3 class="page_edit">パーソナルメモ</h3>
+		</div>
+		<div class="md2_sub">
+			<ul>
+				<li class="zoom_in">
+					<a href="https://s2.movacal.net/23.7/?pid=top&amp;first_access=1739947072&amp;patient_id=#" class="zoom_link" onclick="return false;" onmouseup="personalMemoZoom(this);">拡大</a>
+				</li>
+			</ul>
+		</div>
+	<div class="md2_body">
+			<textarea id="personal_memo"></textarea>
+	</div>
+	</div>
+</div>
+<div id="personal_memo_lightbox" onmouseup="personalMemoZoom(this);"></div>
+
+
+
+
+	<div class="md2">
+	<div class="md2_title"><h3 class="memo">お知らせ</h3></div>
+	<div class="md2_body" id="oshirase" style="min-height:80px;padding:10px">
+    <div style="margin-bottom: 5px;"><a href="https://sp.movacal.net/movacal/net_electronicRx.html" target="_blank"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/new.png">電子処方箋 導入事前準備のご案内(1/29)</a></div>
+    <div style="margin-bottom: 5px;"><a href="https://sp.movacal.net/movacal//net_pdf/shogai250117.pdf" target="_blank">FAX障害のご報告(1/17)</a></div>
+    <div style="margin-bottom: 5px;"><a href="https://sp.movacal.net/release/older.html" target="_blank">機能追加案内(12/27)</a></div>
+    <div style="margin-bottom: 5px;"><a href="https://sp.movacal.net/movacal/net_notice.html" target="_blank"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/new.png">...お知らせ一覧(2/7)</a></div>
+        </div>
+</div>
+</div>
+
+
+
+<div id="right_area" class="box_md2_frame" style="width:200px;margin-right:0px;order:2;">
+
+<div style="margin-bottom:15px;">
+<a href="https://s2.movacal.net/23.7/?pid=top_communityjump" target="_blank"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/header-icon_kamo.png" style="height:20px;" class="icon">モバカルコミュニティ<img src="./モバカルネット _ 在宅医療対応電子カルテ_files/application_double.png" class="icon"></a>
+</div>
+
+
+	<!-- 予定 -->
+	<div class="md2">
+	<div class="md2_title">
+		<div><h3 class="list">2/19(水) 予定表</h3></div>
+	</div>
+	<div class="md2_body">
+	<table class="topTable">
+</table><table class="schedule"><tbody><tr class="even"><td class="td_etc" style="background-color:#fff" ;="">時間未定</td><td style="vertical-align:top;background-color:#ffffff"></td></tr><tr><td class="td_etc" style="background-color:#fff" ;="">9:00 以前</td><td style="vertical-align:top;background-color:#ffffff"></td></tr><tr class="even"><td class="td_even" style="background-color:#EEE;">9:00</td><td style="vertical-align:top;background-color:#ffffff"></td></tr><tr><td class="td_odd" style="background-color:#EEE;">&nbsp;</td><td style="vertical-align:top;background-color:#ffffff"></td></tr><tr class="even"><td class="td_even" style="background-color:#EEE;">10:00</td><td style="vertical-align:top;background-color:#ffffff"></td></tr><tr><td class="td_odd" style="background-color:#EEE;">&nbsp;</td><td style="vertical-align:top;background-color:#ffffff"></td></tr><tr class="even"><td class="td_even" style="background-color:#EEE;">11:00</td><td style="vertical-align:top;background-color:#ffffff"></td></tr><tr><td class="td_odd" style="background-color:#EEE;">&nbsp;</td><td style="vertical-align:top;background-color:#ffffff"></td></tr><tr class="even"><td class="td_even" style="background-color:#EEE;">12:00</td><td style="vertical-align:top;background-color:#ffffff"></td></tr><tr><td class="td_odd" style="background-color:#EEE;">&nbsp;</td><td style="vertical-align:top;background-color:#ffffff"></td></tr><tr class="even"><td class="td_even" style="background-color:#EEE;">13:00</td><td style="vertical-align:top;background-color:#ffffff"></td></tr><tr><td class="td_odd" style="background-color:#EEE;">&nbsp;</td><td style="vertical-align:top;background-color:#ffffff"></td></tr><tr class="even"><td class="td_even" style="background-color:#EEE;">14:00</td><td style="vertical-align:top;background-color:#ffffff"></td></tr><tr><td class="td_odd" style="background-color:#EEE;">&nbsp;</td><td style="vertical-align:top;background-color:#ffffff"></td></tr><tr class="even"><td class="td_even" style="background-color:#EEE;">15:00</td><td style="vertical-align:top;background-color:#ffffff"></td></tr><tr><td class="td_odd" style="background-color:#EEE;">&nbsp;</td><td style="vertical-align:top;background-color:#ffffff"></td></tr><tr class="even"><td class="td_even" style="background-color:#EEE;">16:00</td><td style="vertical-align:top;background-color:#ffffff"></td></tr><tr><td class="td_odd" style="background-color:#EEE;">&nbsp;</td><td style="vertical-align:top;background-color:#ffffff"></td></tr><tr class="even"><td class="td_even" style="background-color:#EEE;">17:00</td><td style="vertical-align:top;background-color:#ffffff"></td></tr><tr><td class="td_odd" style="background-color:#EEE;">&nbsp;</td><td style="vertical-align:top;background-color:#ffffff"></td></tr><tr class="even"><td class="td_even" style="background-color:#EEE;">18:00</td><td style="vertical-align:top;background-color:#ffffff"></td></tr><tr><td class="td_odd" style="background-color:#EEE;">&nbsp;</td><td style="vertical-align:top;background-color:#ffffff"></td></tr><tr class="tr_etc_end even"><td class="td_etc" style="background-color:#fff" ;="">19:00 以降</td><td style="vertical-align:top;background-color:#ffffff"></td></tr></tbody></table>
+	
+
+	</div>
+	</div>
+
+<!--
+<div class="banner_content">
+<a href="https://jp.surveymonkey.com/r/BLKN3Z6" target="_blank"><img src="./imgs/bunner3.png"></a>
+</div>
+
+<div class="banner_content">
+<a href="http://m3ds.co.jp/%3Fpage_id%3D1066" target="_blank"><img src="./imgs/bunner1.png"></a>
+</div>
+-->
+
+<div class="banner" style="border:none;padding:0px;">
+	<a href="https://s2.movacal.net/23.7/banner/queens/flyer2.pdf" target="_blank"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/banner2.jpg" style="width:200px;"></a>
+</div>
+
+</div>
+
+<div id="center_area" class="box_md2_frame" style="order:1;flex:1;min-width:0;">
+
+
+
+
+
+	<div class="md2_tab_title">
+	<ul class="md2_tab_top" id="message_board_tab">
+
+<li class="tablist cur" id="boad_0" onclick="changeMessageTab(1,0);">連絡事項</li>	<li class="tablist" id="boad_1" onclick="changeMessageTab(2,1);">診療時の情報共有事項</li>	<li class="tablist" id="boad_8" onclick="changeMessageTab(3,8);">酸素</li>	<li class="tablist" id="boad_9" onclick="changeMessageTab(4,9);">PCA</li>	<li class="tablist" id="boad_2" onclick="changeMessageTab(5,2);">訪問看護について</li>	<li class="tablist" id="boad_10" onclick="changeMessageTab(6,10);">血糖測定器</li>	<li class="tablist" id="boad_11" onclick="changeMessageTab(7,11);">点滴台</li>	<li class="tablist" id="boad_13" onclick="changeMessageTab(8,13);">吸引機</li>	<li class="tablist" id="boad_15" onclick="changeMessageTab(9,15);">カフティポンプ　</li>	<li class="tablist" id="boad_3" onclick="changeMessageTab(10,3);">施設置き薬</li>	<li class="tablist" id="boad_4" onclick="changeMessageTab(11,4);">薬局の連休情報</li>	<li class="tablist" id="boad_17" onclick="changeMessageTab(12,17);">吸入器</li>	<li class="tablist" id="boad_5" onclick="changeMessageTab(13,5);">看護部情報共有</li>	<li class="tablist" id="boad_12" onclick="changeMessageTab(14,12);">リハ中止基準</li>	<li class="tablist" id="boad_6" onclick="changeMessageTab(15,6);">コロナ関連</li>	<li class="tablist" id="boad_14" onclick="changeMessageTab(16,14);">看護師特定行為</li>	<li class="tablist" id="boad_16" onclick="changeMessageTab(17,16);">MCSについて</li>
+	<li class="tablist" onclick="javascript:location.href=&#39;./?pid=setting_messageboard-input&#39;">＋追加</li>
+
+	</ul>
+	</div>
+
+	<!-- 連絡事項 -->
+	<div class="md2_tab md2">
+	<div class="md2_sub">
+	<ul>
+		<li class="mail_new"><a href="javascript:openMess();setSenderUserNumber();">新規作成</a></li>
+		<li class="search"><a href="javascript:showSearchMessage()">検索</a></li>
+	</ul>
+	</div>
+	<div class="md2_body" style="height:500px;overflow-y:scroll">
+	<table class="topTable full-width-space-break-all" id="message_board_body"><tbody><tr class="">
+<td style="width:85%">
+<div><img style="float:left;margin:5px;" width="50" src="./モバカルネット _ 在宅医療対応電子カルテ_files/DOCTOR_1.png"> <p style="font-size:10px;padding:5px;"> 2023/12/25(月) 12:40 月永洋介   <a href="javascript:openFlag(&#39;e366586ed87053155ffd4d070a5f782c3b9b9f9e&#39;,&#39;&#39;,&#39;&#39;,&#39;&#39;)" class="flag_link">フラグ</a> <a class="board_iine" id="iine_button_e366586ed87053155ffd4d070a5f782c3b9b9f9e" style="color:black" href="javascript:iinePush(&#39;0&#39;,&#39;e366586ed87053155ffd4d070a5f782c3b9b9f9e&#39;)">OK</a></p>
+【訪問看護ステーション鹿沼　配置物　2023.12.25】<div style="clear:both"></div></div>
+
+<a href="https://s2.movacal.net/23.7/?pid=top_messfiledl&amp;mess_id=e366586ed87053155ffd4d070a5f782c3b9b9f9e" target="_blank" style="padding-left:5px;display:block;margin-bottom:10px;font-size:10px"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/attach.png" class="icon">訪看かぬま物品(2023.12.25開始).pdf</a>
+
+<div class="board_iine_result" id="board_iine_e366586ed87053155ffd4d070a5f782c3b9b9f9e"><span id="board_iine_iine_e366586ed87053155ffd4d070a5f782c3b9b9f9e"></span><span id="iine_member_e366586ed87053155ffd4d070a5f782c3b9b9f9e">&nbsp;</span></div>
+<div class="board_patient_result" id="board_patient_e366586ed87053155ffd4d070a5f782c3b9b9f9e"></div></td>
+<td style="width:15%;text-align:center"><a href="javascript:openMess(&#39;e366586ed87053155ffd4d070a5f782c3b9b9f9e&#39;);setSenderUserNumber( &#39;202190002&#39; );"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/email_edit.png" style="vertical-align:middle"> 返信</a></td>
+</tr><tr class="even">
+<td style="width:85%">
+<div><img style="float:left;margin:5px;" width="50" src="./モバカルネット _ 在宅医療対応電子カルテ_files/MANAGER_2.png"> <p style="font-size:10px;padding:5px;"> 2022/9/1(木) 10:42 塚田結子   <a href="javascript:openFlag(&#39;b240aab3b6dc0ff75f8348cc5eff2f5da5d89199&#39;,&#39;&#39;,&#39;&#39;,&#39;&#39;)" class="flag_link">フラグ</a> <a class="board_iine" id="iine_button_b240aab3b6dc0ff75f8348cc5eff2f5da5d89199" style="color:black" href="javascript:iinePush(&#39;0&#39;,&#39;b240aab3b6dc0ff75f8348cc5eff2f5da5d89199&#39;)">OK</a></p>
+【古今嘉の駐車場について】<br><br>9/1より緑のマーカー部分に駐車をお願いします。<div style="clear:both"></div></div>
+<div style="padding-left:5px;"><a href="https://s2.movacal.net/23.7/?pid=top_messfiledl-disp&amp;mess_id=b240aab3b6dc0ff75f8348cc5eff2f5da5d89199" target="_blank"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/saved_resource" style="max-width:200px;"></a></div>
+<a href="https://s2.movacal.net/23.7/?pid=top_messfiledl&amp;mess_id=b240aab3b6dc0ff75f8348cc5eff2f5da5d89199" target="_blank" style="padding-left:5px;display:block;margin-bottom:10px;font-size:10px"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/attach.png" class="icon">20220901104051_00001.jpg</a>
+
+<div class="board_iine_result" id="board_iine_b240aab3b6dc0ff75f8348cc5eff2f5da5d89199"><span id="board_iine_iine_b240aab3b6dc0ff75f8348cc5eff2f5da5d89199">ＯＫ：5人</span><span id="iine_member_b240aab3b6dc0ff75f8348cc5eff2f5da5d89199">&nbsp;<img src="./モバカルネット _ 在宅医療対応電子カルテ_files/thumb.png" class="icon">水上直人 <img src="./モバカルネット _ 在宅医療対応電子カルテ_files/thumb.png" class="icon">水沼史明 <img src="./モバカルネット _ 在宅医療対応電子カルテ_files/thumb.png" class="icon">月永洋介 <img src="./モバカルネット _ 在宅医療対応電子カルテ_files/thumb.png" class="icon">加藤龍太 <img src="./モバカルネット _ 在宅医療対応電子カルテ_files/thumb.png" class="icon">水沼みなみ </span></div>
+<div class="board_patient_result" id="board_patient_b240aab3b6dc0ff75f8348cc5eff2f5da5d89199"></div></td>
+<td style="width:15%;text-align:center"><a href="javascript:openMess(&#39;b240aab3b6dc0ff75f8348cc5eff2f5da5d89199&#39;);setSenderUserNumber( &#39;202190160&#39; );"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/email_edit.png" style="vertical-align:middle"> 返信</a></td>
+</tr><tr class="">
+<td style="width:85%">
+<div><img style="float:left;margin:5px;" width="50" src="./モバカルネット _ 在宅医療対応電子カルテ_files/MANAGER_2.png"> <p style="font-size:10px;padding:5px;"> 2022/7/15(金) 15:31 谷地瑞紀   <a href="javascript:openFlag(&#39;17c3da0775aef345829a3e0951feb86b22a9bea1&#39;,&#39;&#39;,&#39;&#39;,&#39;&#39;)" class="flag_link">フラグ</a> <a class="board_iine" id="iine_button_17c3da0775aef345829a3e0951feb86b22a9bea1" style="color:black" href="javascript:iinePush(&#39;0&#39;,&#39;17c3da0775aef345829a3e0951feb86b22a9bea1&#39;)">OK</a></p>
+【サンフレンズ宇都宮の駐車場について】<br><br>駐車場が満車の際は建物横（東側）の砂利駐車場にも駐車いただけます。<br>なお、砂利駐車場の奥の方にサンフレンズ用の駐車スペースがございますので、ご注意ください。<div style="clear:both"></div></div>
+<div style="padding-left:5px;"><a href="https://s2.movacal.net/23.7/?pid=top_messfiledl-disp&amp;mess_id=17c3da0775aef345829a3e0951feb86b22a9bea1" target="_blank"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/saved_resource(1)" style="max-width:200px;"></a></div>
+<a href="https://s2.movacal.net/23.7/?pid=top_messfiledl&amp;mess_id=17c3da0775aef345829a3e0951feb86b22a9bea1" target="_blank" style="padding-left:5px;display:block;margin-bottom:10px;font-size:10px"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/attach.png" class="icon">IMG_3854.PNG</a>
+
+<div class="board_iine_result" id="board_iine_17c3da0775aef345829a3e0951feb86b22a9bea1"><span id="board_iine_iine_17c3da0775aef345829a3e0951feb86b22a9bea1">ＯＫ：1人</span><span id="iine_member_17c3da0775aef345829a3e0951feb86b22a9bea1">&nbsp;<img src="./モバカルネット _ 在宅医療対応電子カルテ_files/thumb.png" class="icon">水沼史明 </span></div>
+<div class="board_patient_result" id="board_patient_17c3da0775aef345829a3e0951feb86b22a9bea1"></div></td>
+<td style="width:15%;text-align:center"><a href="javascript:openMess(&#39;17c3da0775aef345829a3e0951feb86b22a9bea1&#39;);setSenderUserNumber( &#39;202190128&#39; );"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/email_edit.png" style="vertical-align:middle"> 返信</a></td>
+</tr><tr class="even">
+<td style="width:85%">
+<div><img style="float:left;margin:5px;" width="50" src="./モバカルネット _ 在宅医療対応電子カルテ_files/NURSE_2.png"> <p style="font-size:10px;padding:5px;"> 2022/4/28(木) 12:42 村井奈賀子   <a href="javascript:openFlag(&#39;b8d358a4cb4e7310b5529aef362559e1e9caec57&#39;,&#39;&#39;,&#39;&#39;,&#39;&#39;)" class="flag_link">フラグ</a> <a class="board_iine" id="iine_button_b8d358a4cb4e7310b5529aef362559e1e9caec57" style="color:black" href="javascript:iinePush(&#39;0&#39;,&#39;b8d358a4cb4e7310b5529aef362559e1e9caec57&#39;)">OK</a></p>
+さつきホームクリニック宇都宮採用薬剤<div style="clear:both"></div></div>
+
+<a href="https://s2.movacal.net/23.7/?pid=top_messfiledl&amp;mess_id=b8d358a4cb4e7310b5529aef362559e1e9caec57" target="_blank" style="padding-left:5px;display:block;margin-bottom:10px;font-size:10px"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/attach.png" class="icon">Book1.xlsx</a>
+
+<div class="board_iine_result" id="board_iine_b8d358a4cb4e7310b5529aef362559e1e9caec57"><span id="board_iine_iine_b8d358a4cb4e7310b5529aef362559e1e9caec57"></span><span id="iine_member_b8d358a4cb4e7310b5529aef362559e1e9caec57">&nbsp;</span></div>
+<div class="board_patient_result" id="board_patient_b8d358a4cb4e7310b5529aef362559e1e9caec57"></div></td>
+<td style="width:15%;text-align:center"><a href="javascript:openMess(&#39;b8d358a4cb4e7310b5529aef362559e1e9caec57&#39;);setSenderUserNumber( &#39;202190051&#39; );"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/email_edit.png" style="vertical-align:middle"> 返信</a></td>
+</tr><tr class="">
+<td style="width:85%">
+<div><img style="float:left;margin:5px;" width="50" src="./モバカルネット _ 在宅医療対応電子カルテ_files/MANAGER_2.png"> <p style="font-size:10px;padding:5px;"> 2022/4/11(月) 17:43 小池佑季   <a href="javascript:openFlag(&#39;3337ca817718ac20549cbe39f3ef9ce84a90a836&#39;,&#39;&#39;,&#39;&#39;,&#39;&#39;)" class="flag_link">フラグ</a> <a class="board_iine" id="iine_button_3337ca817718ac20549cbe39f3ef9ce84a90a836" style="color:black" href="javascript:iinePush(&#39;0&#39;,&#39;3337ca817718ac20549cbe39f3ef9ce84a90a836&#39;)">OK</a></p>
+【フクダライフテック】酸素依頼時の連絡先について<br><br>依頼時、代表番号に連絡をお願いします。<br>TEL：028-688-5611<div style="clear:both"></div></div>
+
+
+
+<div class="board_iine_result" id="board_iine_3337ca817718ac20549cbe39f3ef9ce84a90a836"><span id="board_iine_iine_3337ca817718ac20549cbe39f3ef9ce84a90a836"></span><span id="iine_member_3337ca817718ac20549cbe39f3ef9ce84a90a836">&nbsp;</span></div>
+<div class="board_patient_result" id="board_patient_3337ca817718ac20549cbe39f3ef9ce84a90a836"></div></td>
+<td style="width:15%;text-align:center"><a href="javascript:openMess(&#39;3337ca817718ac20549cbe39f3ef9ce84a90a836&#39;);setSenderUserNumber( &#39;202190107&#39; );"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/email_edit.png" style="vertical-align:middle"> 返信</a></td>
+</tr><tr class="even">
+<td style="width:85%">
+<div><img style="float:left;margin:5px;" width="50" src="./モバカルネット _ 在宅医療対応電子カルテ_files/DOCTOR_1.png"> <p style="font-size:10px;padding:5px;"> 2021/5/24(月) 14:24 月永洋介   <a href="javascript:openFlag(&#39;0ab5891bdd90ee982caf083f56a541dbc077e58e&#39;,&#39;&#39;,&#39;&#39;,&#39;&#39;)" class="flag_link">フラグ</a> <a class="board_iine" id="iine_button_0ab5891bdd90ee982caf083f56a541dbc077e58e" style="color:black" href="javascript:iinePush(&#39;0&#39;,&#39;0ab5891bdd90ee982caf083f56a541dbc077e58e&#39;)">OK</a></p>
+【フィジオ140 500ml点滴セット常備】<br>・サニー宇都宮　5本<br>・豊郷台ひまわり　5本<div style="clear:both"></div></div>
+
+
+
+<div class="board_iine_result" id="board_iine_0ab5891bdd90ee982caf083f56a541dbc077e58e"><span id="board_iine_iine_0ab5891bdd90ee982caf083f56a541dbc077e58e"></span><span id="iine_member_0ab5891bdd90ee982caf083f56a541dbc077e58e">&nbsp;</span></div>
+<div class="board_patient_result" id="board_patient_0ab5891bdd90ee982caf083f56a541dbc077e58e"></div></td>
+<td style="width:15%;text-align:center"><a href="javascript:openMess(&#39;0ab5891bdd90ee982caf083f56a541dbc077e58e&#39;);setSenderUserNumber( &#39;202190002&#39; );"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/email_edit.png" style="vertical-align:middle"> 返信</a></td>
+</tr><tr class="">
+<td style="width:85%">
+<div><img style="float:left;margin:5px;" width="50" src="./モバカルネット _ 在宅医療対応電子カルテ_files/DOCTOR_1.png"> <p style="font-size:10px;padding:5px;"> 2021/1/14(木) 22:39 月永洋介   <a href="javascript:openFlag(&#39;999bb49e22f9cc4a16487d9f214c5fe32e8f7723&#39;,&#39;&#39;,&#39;&#39;,&#39;&#39;)" class="flag_link">フラグ</a> <a class="board_iine" id="iine_button_999bb49e22f9cc4a16487d9f214c5fe32e8f7723" style="color:black" href="javascript:iinePush(&#39;0&#39;,&#39;999bb49e22f9cc4a16487d9f214c5fe32e8f7723&#39;)">OK</a></p>
+2021/1/14⭕️サニーライフ宇都宮 ACP確認について<br>・平日の日中は施設長に依頼<br>・夜間 休日はさつきから直接 家族へ連絡し対応<br><br>以上よろしくお願い致します。(林)<div style="clear:both"></div></div>
+
+
+
+<div class="board_iine_result" id="board_iine_999bb49e22f9cc4a16487d9f214c5fe32e8f7723"><span id="board_iine_iine_999bb49e22f9cc4a16487d9f214c5fe32e8f7723"></span><span id="iine_member_999bb49e22f9cc4a16487d9f214c5fe32e8f7723">&nbsp;</span></div>
+<div class="board_patient_result" id="board_patient_999bb49e22f9cc4a16487d9f214c5fe32e8f7723"></div></td>
+<td style="width:15%;text-align:center"><a href="javascript:openMess(&#39;999bb49e22f9cc4a16487d9f214c5fe32e8f7723&#39;);setSenderUserNumber( &#39;202190002&#39; );"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/email_edit.png" style="vertical-align:middle"> 返信</a></td>
+</tr><tr class="even">
+<td style="width:85%">
+<div><img style="float:left;margin:5px;" width="50" src="./モバカルネット _ 在宅医療対応電子カルテ_files/DOCTOR_1.png"> <p style="font-size:10px;padding:5px;"> 2020/5/28(木) 18:25 月永洋介   <a href="javascript:openFlag(&#39;34d1bd883c0ca10c069b05ac5ac88bd428a0c155&#39;,&#39;&#39;,&#39;&#39;,&#39;&#39;)" class="flag_link">フラグ</a> <a class="board_iine" id="iine_button_34d1bd883c0ca10c069b05ac5ac88bd428a0c155" style="color:black" href="javascript:iinePush(&#39;0&#39;,&#39;34d1bd883c0ca10c069b05ac5ac88bd428a0c155&#39;)">OK</a></p>
+アナフィラキシーセット、訪問看護フルネスさんにお渡ししています。<div style="clear:both"></div></div>
+
+
+
+<div class="board_iine_result" id="board_iine_34d1bd883c0ca10c069b05ac5ac88bd428a0c155"><span id="board_iine_iine_34d1bd883c0ca10c069b05ac5ac88bd428a0c155"></span><span id="iine_member_34d1bd883c0ca10c069b05ac5ac88bd428a0c155">&nbsp;</span></div>
+<div class="board_patient_result" id="board_patient_34d1bd883c0ca10c069b05ac5ac88bd428a0c155"></div></td>
+<td style="width:15%;text-align:center"><a href="javascript:openMess(&#39;34d1bd883c0ca10c069b05ac5ac88bd428a0c155&#39;);setSenderUserNumber( &#39;202190002&#39; );"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/email_edit.png" style="vertical-align:middle"> 返信</a></td>
+</tr><tr class="">
+<td style="width:85%">
+<div><img style="float:left;margin:5px;" width="50" src="./モバカルネット _ 在宅医療対応電子カルテ_files/DOCTOR_1.png"> <p style="font-size:10px;padding:5px;"> 2020/4/28(火) 13:09 月永洋介   <a href="javascript:openFlag(&#39;b676f9f4daf12d899a69f8dbed3cd556d28bea68&#39;,&#39;&#39;,&#39;&#39;,&#39;&#39;)" class="flag_link">フラグ</a> <a class="board_iine" id="iine_button_b676f9f4daf12d899a69f8dbed3cd556d28bea68" style="color:black" href="javascript:iinePush(&#39;0&#39;,&#39;b676f9f4daf12d899a69f8dbed3cd556d28bea68&#39;)">OK</a></p>
+訪問看護ステーション鹿沼へ　14Fr・16Frバルン2セット、ウロバック2セット、膀胱洗浄5セット、導尿セット5セット置いてあります。<div style="clear:both"></div></div>
+
+
+
+<div class="board_iine_result" id="board_iine_b676f9f4daf12d899a69f8dbed3cd556d28bea68"><span id="board_iine_iine_b676f9f4daf12d899a69f8dbed3cd556d28bea68"></span><span id="iine_member_b676f9f4daf12d899a69f8dbed3cd556d28bea68">&nbsp;</span></div>
+<div class="board_patient_result" id="board_patient_b676f9f4daf12d899a69f8dbed3cd556d28bea68"></div></td>
+<td style="width:15%;text-align:center"><a href="javascript:openMess(&#39;b676f9f4daf12d899a69f8dbed3cd556d28bea68&#39;);setSenderUserNumber( &#39;202190002&#39; );"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/email_edit.png" style="vertical-align:middle"> 返信</a></td>
+</tr><tr class="even">
+<td style="width:85%">
+<div><img style="float:left;margin:5px;" width="50" src="./モバカルネット _ 在宅医療対応電子カルテ_files/DOCTOR_1.png"> <p style="font-size:10px;padding:5px;"> 2020/4/27(月) 11:18 月永洋介   <a href="javascript:openFlag(&#39;ba1447b02bbea6fb347f14a88bc5989fd46fb446&#39;,&#39;&#39;,&#39;&#39;,&#39;&#39;)" class="flag_link">フラグ</a> <a class="board_iine" id="iine_button_ba1447b02bbea6fb347f14a88bc5989fd46fb446" style="color:black" href="javascript:iinePush(&#39;0&#39;,&#39;ba1447b02bbea6fb347f14a88bc5989fd46fb446&#39;)">OK</a></p>
+つくも薬局西茂呂店　セレネース20Aあり　そのまま置いてもらっている（2020.4.27時点）<div style="clear:both"></div></div>
+
+
+
+<div class="board_iine_result" id="board_iine_ba1447b02bbea6fb347f14a88bc5989fd46fb446"><span id="board_iine_iine_ba1447b02bbea6fb347f14a88bc5989fd46fb446"></span><span id="iine_member_ba1447b02bbea6fb347f14a88bc5989fd46fb446">&nbsp;</span></div>
+<div class="board_patient_result" id="board_patient_ba1447b02bbea6fb347f14a88bc5989fd46fb446"></div></td>
+<td style="width:15%;text-align:center"><a href="javascript:openMess(&#39;ba1447b02bbea6fb347f14a88bc5989fd46fb446&#39;);setSenderUserNumber( &#39;202190002&#39; );"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/email_edit.png" style="vertical-align:middle"> 返信</a></td>
+</tr><tr class="more_row">
+<td colspan="2"><div class="disp_more" style="cursor:pointer;margin-bottom:10px" onclick="javascript:getMessageBoard(0,10);">▼もっと見る</div></td>
+</tr></tbody></table>
+	</div>
+	</div>
+
+	<div class="md2">
+	<div class="md2_title"><h3 class="list">重症患者</h3></div>
+	<div class="md2_body" style="min-height:150px;max-height:300px;overflow-y:scroll">
+	<table class="topTable">
+	<tbody><tr class="even"><th style="width:25%;background-color:#EEE">入院中 （30名）</th><th style="width:25%;background-color:#FFDEDD">最重症 （0名）</th><th style="width:25%;background-color:#FFECDD">重　症 （1名）</th><th style="width:25%;background-color:#FFFDDD">要注意 （5名）</th></tr>
+</tbody><tbody>
+	<tr>
+		<td style="vertical-align:top;background-color:#F9F9F9"><a href="https://s2.movacal.net/23.7/?pid=patient_detail&amp;patient_id=2281&amp;karte_id=&amp;p=1"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/user.png" style="vertical-align:middle"> 大根田勝利<br></a><a href="https://s2.movacal.net/23.7/?pid=patient_detail&amp;patient_id=2556&amp;karte_id=&amp;p=1"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/user_w.png" style="vertical-align:middle"> 猪狩綾子<br></a><a href="https://s2.movacal.net/23.7/?pid=patient_detail&amp;patient_id=3258&amp;karte_id=&amp;p=1"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/user_w.png" style="vertical-align:middle"> 水谷節子<br></a><a href="https://s2.movacal.net/23.7/?pid=patient_detail&amp;patient_id=332&amp;karte_id=&amp;p=1"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/user_w.png" style="vertical-align:middle"> 小林喜孜子<br></a><a href="https://s2.movacal.net/23.7/?pid=patient_detail&amp;patient_id=3847&amp;karte_id=&amp;p=1"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/user_w.png" style="vertical-align:middle"> 佐藤照江<br></a><a href="https://s2.movacal.net/23.7/?pid=patient_detail&amp;patient_id=3882&amp;karte_id=&amp;p=1"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/user.png" style="vertical-align:middle"> 前田成彬(と上)<br></a><a href="https://s2.movacal.net/23.7/?pid=patient_detail&amp;patient_id=4084&amp;karte_id=&amp;p=1"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/user_w.png" style="vertical-align:middle"> 猪瀬ツル<br></a><a href="https://s2.movacal.net/23.7/?pid=patient_detail&amp;patient_id=4442&amp;karte_id=&amp;p=1"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/user.png" style="vertical-align:middle"> 長谷川輝夫<br></a><a href="https://s2.movacal.net/23.7/?pid=patient_detail&amp;patient_id=4599&amp;karte_id=&amp;p=1"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/user.png" style="vertical-align:middle"> 鈴木米吉<br></a><a href="https://s2.movacal.net/23.7/?pid=patient_detail&amp;patient_id=4823&amp;karte_id=&amp;p=1"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/user_w.png" style="vertical-align:middle"> 星野ヨシイ(Bミ)<br></a><a href="https://s2.movacal.net/23.7/?pid=patient_detail&amp;patient_id=4851&amp;karte_id=&amp;p=1"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/user_w.png" style="vertical-align:middle"> 吉葉孝江<br></a><a href="https://s2.movacal.net/23.7/?pid=patient_detail&amp;patient_id=4866&amp;karte_id=&amp;p=1"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/user.png" style="vertical-align:middle"> 小山一彦<br></a><a href="https://s2.movacal.net/23.7/?pid=patient_detail&amp;patient_id=5061&amp;karte_id=&amp;p=1"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/user_w.png" style="vertical-align:middle"> 杵渕幸子<br></a><a href="https://s2.movacal.net/23.7/?pid=patient_detail&amp;patient_id=5132&amp;karte_id=&amp;p=1"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/user_w.png" style="vertical-align:middle"> 原田ハツ<br></a><a href="https://s2.movacal.net/23.7/?pid=patient_detail&amp;patient_id=5282&amp;karte_id=&amp;p=1"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/user.png" style="vertical-align:middle"> 高橋弘<br></a><a href="https://s2.movacal.net/23.7/?pid=patient_detail&amp;patient_id=5320&amp;karte_id=&amp;p=1"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/user.png" style="vertical-align:middle"> 手塚文夫<br></a><a href="https://s2.movacal.net/23.7/?pid=patient_detail&amp;patient_id=5355&amp;karte_id=&amp;p=1"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/user.png" style="vertical-align:middle"> 佐藤保次(南の)<br></a><a href="https://s2.movacal.net/23.7/?pid=patient_detail&amp;patient_id=5579&amp;karte_id=&amp;p=1"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/user_w.png" style="vertical-align:middle"> 上澤ゆい<br></a><a href="https://s2.movacal.net/23.7/?pid=patient_detail&amp;patient_id=5630&amp;karte_id=&amp;p=1"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/user.png" style="vertical-align:middle"> 川津勇吉(富屋)<br></a><a href="https://s2.movacal.net/23.7/?pid=patient_detail&amp;patient_id=5756&amp;karte_id=&amp;p=1"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/user.png" style="vertical-align:middle"> 山口久(と上)<br></a><a href="https://s2.movacal.net/23.7/?pid=patient_detail&amp;patient_id=5773&amp;karte_id=&amp;p=1"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/user_w.png" style="vertical-align:middle"> 川嶋ミツヱ<br></a><a href="https://s2.movacal.net/23.7/?pid=patient_detail&amp;patient_id=5775&amp;karte_id=&amp;p=1"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/user.png" style="vertical-align:middle"> 黒崎誠之<br></a><a href="https://s2.movacal.net/23.7/?pid=patient_detail&amp;patient_id=5832&amp;karte_id=&amp;p=1"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/user_w.png" style="vertical-align:middle"> 大森喜美<br></a><a href="https://s2.movacal.net/23.7/?pid=patient_detail&amp;patient_id=5868&amp;karte_id=&amp;p=1"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/user_w.png" style="vertical-align:middle"> 上野好江<br></a><a href="https://s2.movacal.net/23.7/?pid=patient_detail&amp;patient_id=5951&amp;karte_id=&amp;p=1"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/user.png" style="vertical-align:middle"> 澤和男(4元)<br></a><a href="https://s2.movacal.net/23.7/?pid=patient_detail&amp;patient_id=6011&amp;karte_id=&amp;p=1"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/user_w.png" style="vertical-align:middle"> 渡邉弘子<br></a><a href="https://s2.movacal.net/23.7/?pid=patient_detail&amp;patient_id=6216&amp;karte_id=&amp;p=1"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/user.png" style="vertical-align:middle"> 小森邦利<br></a><a href="https://s2.movacal.net/23.7/?pid=patient_detail&amp;patient_id=6220&amp;karte_id=&amp;p=1"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/user_w.png" style="vertical-align:middle"> 二宮美枝子<br></a><a href="https://s2.movacal.net/23.7/?pid=patient_detail&amp;patient_id=6240&amp;karte_id=&amp;p=1"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/user.png" style="vertical-align:middle"> 江田正<br></a><a href="https://s2.movacal.net/23.7/?pid=patient_detail&amp;patient_id=6270&amp;karte_id=&amp;p=1"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/user.png" style="vertical-align:middle"> 長岡喜造<br></a></td>
+		<td style="vertical-align:top;background-color:#FFF7F7"></td>
+		<td style="vertical-align:top;background-color:#FFFCF7"><a href="https://s2.movacal.net/23.7/?pid=patient_detail&amp;patient_id=1&amp;karte_id=&amp;p=1"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/user_w.png" style="vertical-align:middle"> テンプレート患者<br>
+</a></td>
+		<td style="vertical-align:top;background-color:#FFFEF7"><a href="https://s2.movacal.net/23.7/?pid=patient_detail&amp;patient_id=484&amp;karte_id=&amp;p=1"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/user_w.png" style="vertical-align:middle"> 有馬和江(ⅡB)<br>
+</a><a href="https://s2.movacal.net/23.7/?pid=patient_detail&amp;patient_id=1160&amp;karte_id=&amp;p=1"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/user.png" style="vertical-align:middle"> 東海林愼太郎(Aあ)<br>
+</a><a href="https://s2.movacal.net/23.7/?pid=patient_detail&amp;patient_id=2485&amp;karte_id=&amp;p=1"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/user_w.png" style="vertical-align:middle"> 武藤コウ<br>
+</a><a href="https://s2.movacal.net/23.7/?pid=patient_detail&amp;patient_id=3664&amp;karte_id=&amp;p=1"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/user_w.png" style="vertical-align:middle"> 西村ミツ子<br>
+</a><a href="https://s2.movacal.net/23.7/?pid=patient_detail&amp;patient_id=3915&amp;karte_id=&amp;p=1"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/user.png" style="vertical-align:middle"> 野上孝司(岡本)<br>
+</a></td>
+	</tr>
+</tbody>
+	</table>
+	</div>
+	</div>
+
+	<!-- 前日検査結果 -->
+	<div class="md2">
+	<div class="md2_title"><h3 class="list">前日検査結果</h3></div>
+	<div class="md2_body" style="height:150px;overflow-y:scroll">
+	<table class="topTable">
+	<tbody><tr class="even"><th style="width:120px">検査日</th><th style="width:200px">患者名</th><th>ステータス</th><th>主治医</th><th>訪問区分</th><th>結果</th><th>検査会社</th></tr>
+<tr>
+<td style="white-space:nowrap;">2/18(火) </td><td><a href="https://s2.movacal.net/23.7/?pid=patient_detail&amp;patient_id=1913&amp;p=1"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/user_w.png" style="vertical-align:middle"> 飯野マサ</a></td><td></td><td></td><td>サ高住（特定施設以外）</td><td><a href="https://s2.movacal.net/23.7/?pid=top_examdata&amp;patient_exam_id=01915&amp;exam_date=2025-02-18&amp;patient_name=%E9%A3%AF%E9%87%8E%E3%83%9E%E3%82%B5&amp;exam_company=1&amp;company_name=%E3%82%B5%E3%83%B3%E3%83%AA%E3%83%84" target="_blank"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/application_double.png" class="icon">結果</a></td><td>サンリツ</td>
+</tr><tr class="even">
+<td style="white-space:nowrap;">2/18(火) </td><td><a href="https://s2.movacal.net/23.7/?pid=patient_detail&amp;patient_id=5531&amp;p=1"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/user_w.png" style="vertical-align:middle"> 上野昌子</a></td><td></td><td>半田桂子</td><td>居宅</td><td><a href="https://s2.movacal.net/23.7/?pid=top_examdata&amp;patient_exam_id=05534&amp;exam_date=2025-02-18&amp;patient_name=%E4%B8%8A%E9%87%8E%E6%98%8C%E5%AD%90&amp;exam_company=1&amp;company_name=%E3%82%B5%E3%83%B3%E3%83%AA%E3%83%84" target="_blank"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/application_double.png" class="icon">結果</a></td><td>サンリツ</td>
+</tr><tr>
+<td style="white-space:nowrap;">2/18(火) </td><td><a href="https://s2.movacal.net/23.7/?pid=patient_detail&amp;patient_id=5677&amp;p=1"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/user.png" style="vertical-align:middle"> 栗原康浩</a></td><td></td><td>奥山博仁</td><td>居宅</td><td><a href="https://s2.movacal.net/23.7/?pid=top_examdata&amp;patient_exam_id=05680&amp;exam_date=2025-02-18&amp;patient_name=%E6%A0%97%E5%8E%9F%E5%BA%B7%E6%B5%A9&amp;exam_company=1&amp;company_name=%E3%82%B5%E3%83%B3%E3%83%AA%E3%83%84" target="_blank"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/application_double.png" class="icon">結果</a></td><td>サンリツ</td>
+</tr><tr class="even">
+<td style="white-space:nowrap;">2/18(火) </td><td><a href="https://s2.movacal.net/23.7/?pid=patient_detail&amp;patient_id=5916&amp;p=1"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/user_w.png" style="vertical-align:middle"> 粕谷宏子</a></td><td></td><td>伊藤天大</td><td>居宅</td><td><a href="https://s2.movacal.net/23.7/?pid=top_examdata&amp;patient_exam_id=05919&amp;exam_date=2025-02-18&amp;patient_name=%E7%B2%95%E8%B0%B7%E5%AE%8F%E5%AD%90&amp;exam_company=1&amp;company_name=%E3%82%B5%E3%83%B3%E3%83%AA%E3%83%84" target="_blank"><img src="./モバカルネット _ 在宅医療対応電子カルテ_files/application_double.png" class="icon">結果</a></td><td>サンリツ</td>
+</tr>
+	</tbody></table>
+	</div>
+	</div>
+
+
+	<!-- 申送り事項 -->
+	<div class="md2">
+	<div class="md2_title"><h3 class="list">申送り事項</h3></div>
+	<div class="md2_body" style="height:150px;overflow-y:scroll">
+	<table class="topTable">
+	<tbody><tr class="even"><th style="width:180px">患者名</th><th>申送り事項</th></tr>
+
+	</tbody></table>
+	</div>
+	</div>
+
+
+	<!-- 他医師クリニック -->
+<!--
+	<div class="md2">
+	<div class="md2_title"><h3 class="list">他医師対応患者</h3></div>
+	<div class="md2_body" id="doctordiv" style="height:150px;overflow-y:scroll">
+	<table id="otherDoctor" class="topTable">
+	<tr><th style="width:120px">日付</th><th>患者名</th><th style="width:200px">医師名</th></tr>
+
+	</table>
+	</div>
+	</div>
+-->
+
+</div>
+
+
+
+<!--//content  -->
+</div>
+
+<!--//conntainer  -->
+</div>
+
+
+<!--//wrapper  -->
+</div>
+<div style="clear:both"></div>
+
+
+</div>
+
+
+<script src="./モバカルネット _ 在宅医療対応電子カルテ_files/jquery.pageslide.min.js.ダウンロード"></script><div id="pageslide" style="display: none;"></div>
+<script>
+        $(".modal2").pageslide({ direction: "left", modal: true });
+
+</script>
+
+
+<div id="ui-datepicker-div" class="ui-datepicker ui-widget ui-widget-content ui-helper-clearfix ui-corner-all"></div></body></html>
